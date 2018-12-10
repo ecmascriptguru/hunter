@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'email_hunter.apps.users'
+    'email_hunter.apps.users',
+    'email_hunter.apps.proxies',
 ]
 
 MIDDLEWARE = [
