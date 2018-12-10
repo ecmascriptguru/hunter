@@ -1,0 +1,1 @@
+from .case_insensitive_model_backend import CaseInsensitiveModelBackend
