@@ -1,3 +1,8 @@
 from django.shortcuts import render
+from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
+from .models import Proxy
 
-# Create your views here.
+class ProxyListView(ListView):
+    decorators = [login_required]
+    model = Proxy
