@@ -1,2 +1,5 @@
 *.cpython-36.pyc
 .vscode/*
+node_modules/*
+npm-debug.log
+static/*

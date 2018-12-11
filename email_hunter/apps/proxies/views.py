@@ -6,3 +6,4 @@ from .models import Proxy
 class ProxyListView(ListView):
     decorators = [login_required]
     model = Proxy
+    template_name = 'proxies/proxy_list_view.html'

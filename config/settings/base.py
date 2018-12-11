@@ -120,9 +120,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+STATIC_ROOT = ''
 STATIC_URL = '/static/'
-
+STATICFILES_DIRS = ( join('static'), )
 # Custom authentication configuration
 AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = ('email_hunter.core.backends.CaseInsensitiveModelBackend', )
