@@ -5,7 +5,6 @@ from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
 
 
-
 class PROXY_PROVIDER:
     MY_PRIVATE_PROXY = 'MPR'
 
@@ -15,10 +14,9 @@ class PROXY_STATE:
     inactive = 'I'
 
 
-class PROXY_TYPE:
-    dedicated = 'D'
+class PROXY_PLAN_TYPE:
     shared = 'S'
-
+    dedicated = 'D'
 
 class Proxy(TimeStampedModel):
     """
@@ -33,18 +31,19 @@ class Proxy(TimeStampedModel):
         (PROXY_STATE.active, 'Active'),
         (PROXY_STATE.inactive, 'Inactive')
     )
-    
-    TYPE_CHOICES = (
-        (PROXY_TYPE.dedicated, 'Dedicated'),
-        (PROXY_TYPE.shared, 'Shared'),
-    )
 
+    PROXY_PLAN_TYPE_CHOICES = (
+        (PROXY_PLAN_TYPE.shared, 'Shared'),
+        (PROXY_PLAN_TYPE.dedicated, 'Dedicated'),
+    )
+    
     ip_address = models.CharField(max_length=15)
     port = models.PositiveIntegerField(default=2228,
         validators=[MinValueValidator(1), MaxValueValidator(65535)],
         help_text='Port Number of proxy')
     provider = FSMField(default=PROXY_PROVIDER.MY_PRIVATE_PROXY, choices=PROVIDER_CHOICES)
-    proxy_type = FSMField(default=PROXY_TYPE.shared, choices=TYPE_CHOICES)
+    external_plan_id = models.CharField(max_length=32)
+    plan_type = FSMField(default=PROXY_PLAN_TYPE.shared, choices=PROXY_PLAN_TYPE_CHOICES)
     state = FSMField(default=PROXY_STATE.inactive, choices=STATE_CHOICES)
 
     def __str__(self):

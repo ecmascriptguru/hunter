@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.management import BaseCommand
-from ...models import Proxy
+from ...backends.fetchs import ProxyFetcher
 
 
 class Command(BaseCommand):
@@ -9,4 +9,8 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-        print("Done")
+        try:
+            c, u = ProxyFetcher.fetch_all()
+            print("{0} proxies added and {1} proxies are updated.".format(c, u))
+        except Exception as e:
+            print(str(e))
