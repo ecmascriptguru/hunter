@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'email_hunter.apps.users',
     'email_hunter.apps.proxies',
     'django_tables2',
+    'email_hunter.apps.credentials',
 ]
 
 MIDDLEWARE = [

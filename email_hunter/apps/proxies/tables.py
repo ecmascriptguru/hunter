@@ -23,4 +23,4 @@ class ProxyTable(tables.Table):
         return "{0}:{1}".format(record.ip_address, record.port)
     
     def render_modified(self, record):
-        return record.modified.strftime('%m/%d/%Y')
+        return record.modified.strftime('%b %d, %Y')
