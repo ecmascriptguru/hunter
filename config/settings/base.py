@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'email_hunter.apps.users',
     'email_hunter.apps.proxies',
+    'django_tables2',
 ]
 
 MIDDLEWARE = [

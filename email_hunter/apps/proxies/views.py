@@ -1,16 +1,15 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
+from django_tables2.config import RequestConfig
+from django_tables2 import SingleTableMixin
 from .models import Proxy
 from .backends import ProxyFetcher
+from .tables import ProxyTable
 
 
-class ProxyListView(ListView):
+class ProxyListView(SingleTableMixin, ListView):
     decorators = [login_required]
     model = Proxy
+    table_class = ProxyTable
     template_name = 'proxies/proxy_list_view.html'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(ProxyListView, self).get_context_data(*args, *kwargs)
-        temp = ProxyFetcher.fetch_myprivateproxy_proxies()
-        return context

@@ -23,7 +23,10 @@ class ProxyFetcher(object):
         for item in items:
             proxy, _ = Proxy.objects.update_or_create(ip_address=item['proxy_ip'],
                 port=item['proxy_port'], provider=PROXY_PROVIDER.MY_PRIVATE_PROXY,
-                defaults={'state': PROXY_STATE.active if item['proxy_status'] == 'online' else PROXY_STATE.inactive})
+                defaults={
+                    'state': PROXY_STATE.active if item['proxy_status'] == 'online' else PROXY_STATE.inactive,
+                    'external_plan_id': item.get('proxy_plan_id')
+                })
             
             if _:
                 created += 1
