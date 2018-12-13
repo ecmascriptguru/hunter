@@ -27,7 +27,7 @@
     <!-- sidebar menu: : style can be found in sidebar.less -->
     <ul class="sidebar-menu" data-widget="tree">
       <li class="">
-        <a href="{% url 'proxies:proxy_list_view' %}">
+        <a href="{% url 'landings:dashboard_view' %}">
           <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
       </li>
@@ -41,7 +41,7 @@
         <ul class="treeview-menu">
           <li ><a href=""><i class="glyphicon glyphicon-exclamation-sign"></i> Files</a></li>
           <li ><a href=""><i class="glyphicon glyphicon-hdd"></i> Entries</a></li>
-          <li ><a href=""><i class="fa fa-key"></i> Credentials</a></li>
+          <li ><a href="{% url 'credentials:credential_list_view' %}"><i class="fa fa-key"></i> Credentials</a></li>
         </ul>
       </li>
       <li class="treeview">

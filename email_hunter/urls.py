@@ -5,4 +5,5 @@ urlpatterns = [
         namespace='proxies')),
     path('credentials', include(('email_hunter.apps.credentials.urls', 'email_hunter.apps.credentials'),
         namespace='credentials')),
+    path('', include(('email_hunter.apps.users.urls', 'email_hunter.apps.users'), namespace='landings')),
 ]

@@ -47,3 +47,10 @@ DATABASES = {
     }
 }
 MYPRIVATEPROXY_ACCESS_KEY = ENV_JSON.get('MYPRIVATEPROXY_ACCESS_KEY', None)
+
+# Email and phone number to be used as recovery email or phone for google accounts
+DEFAULT_RECOVERY_EMAIL = ENV_JSON.get('DEFAULT_RECOVERY_EMAIL', None)
+DEFAULT_RECOVERY_PHONE = ENV_JSON.get('DEFAULT_RECOVERY_PHONE', None)
+
+if not DEFAULT_RECOVERY_EMAIL or not DEFAULT_RECOVERY_PHONE:
+    raise ImportError('You should specify recovery email and phone.')
