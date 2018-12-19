@@ -18,7 +18,7 @@ class TargetFile(TimeStampedModel):
         (ENCODE_TYPE.cp1252, 'CP 1252'),
     )
     internal_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    file = models.FileField(verbose_name='Choose targets file to upload')
+    filename = models.CharField(max_length=128, null=True)
     encode_type = FSMField(default=ENCODE_TYPE.unicode, choices=ENCODE_TYPE_CHOICES)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='target_files')
 
