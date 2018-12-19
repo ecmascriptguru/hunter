@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_tables2',
     'crispy_forms',
+    'celery',
 ]
 
 INSTALLED_APPS += [
@@ -135,3 +136,20 @@ STATICFILES_DIRS = ( join('static'), )
 AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = ('email_hunter.core.backends.CaseInsensitiveModelBackend', )
 LOGIN_REDIRECT_URL = reverse_lazy('landings:dashboard_view')
+
+
+"""
+Celery / Task Queue settings.
+"""
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_CONCURRENCY=1
+CELERYD_MAX_TASKS_PER_CHILD = 1
+
+# CELERY_BEAT_SCHEDULE = {
+#     'every-4-hours-task': {
+#         'task': 'returns_app.apps.tenant_stores.tasks.check_tenant_setup_completion_task',
+#         'schedule': 4 * 60 * 60,
+#     }
+# }

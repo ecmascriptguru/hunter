@@ -57,3 +57,9 @@ if not DEFAULT_RECOVERY_EMAIL or not DEFAULT_RECOVERY_PHONE:
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+"""
+Django Task Queue settings.
+"""
+
+CELERY_BROKER_URL = ENV_JSON.get('REDIS_URL', None)

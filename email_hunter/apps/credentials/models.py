@@ -34,3 +34,30 @@ class Credential(TimeStampedModel):
                             default=settings.DEFAULT_RECOVERY_PHONE)
     has_linkedin = models.BooleanField(default=False)
     state = FSMField(default=CREDENTIAL_STATE.no_proxy, choices=CREDENTIAL_STATE_CHOICES)
+
+    class Meta:
+        ordering = ['modified', ]
+
+    @classmethod
+    def actives(cls):
+        return cls.objects.filter(state=CREDENTIAL_STATE.active)
+
+    @classmethod
+    def get_active(cls):
+        return cls.actives().first()
+
+    @classmethod
+    def holds(cls):
+        return cls.objects.filter(state=CREDENTIAL_STATE.hold)
+
+    @classmethod
+    def get_hold(cls):
+        return cls.holds().first()
+
+    @classmethod
+    def no_proxies(cls):
+        return cls.objects.filter(state=CREDENTIAL_STATE.no_proxy)
+
+    @classmethod
+    def get_no_proxy(cls):
+        return cls.no_proxies().first()
