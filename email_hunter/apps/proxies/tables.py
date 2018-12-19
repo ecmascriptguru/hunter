@@ -17,7 +17,7 @@ class ProxyTable(tables.Table):
         self.counter = itertools.count()
 
     def render_row_number(self):
-        return '# %d' % (next(self.counter) + 1)
+        return '%d' % (next(self.counter) + 1)
     
     def render_proxy(self, record):
         return "{0}:{1}".format(record.ip_address, record.port)

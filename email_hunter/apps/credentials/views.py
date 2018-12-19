@@ -29,3 +29,16 @@ class CredentialCreateView(generic.CreateView):
     form_class = CredentialForm
     template_name = 'credentials/credential_create_view.html'
     success_url = reverse_lazy('credentials:credential_list_view')
+
+
+class CredentialUpdateView(generic.UpdateView):
+    form_class = CredentialForm
+    model = Credential
+    template_name = 'credentials/credential_update_view.html'
+    success_url = reverse_lazy('credentials:credential_list_view')
+
+
+class CredentialDeleteView(generic.DeleteView):
+    model = Credential
+    template_name = 'credentials/credential_delete_view.html'
+    success_url = reverse_lazy('credentials:credential_list_view')
