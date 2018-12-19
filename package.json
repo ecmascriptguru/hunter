@@ -27,7 +27,8 @@
     "gulp-cache": "^1.0.2",
     "gulp-imagemin": "^4.1.0",
     "gulp-load-plugins": "^1.5.0",
-    "gulp-size": "^3.0.0"
+    "gulp-size": "^3.0.0",
+    "icheck": "^1.0.2"
   },
   "babel": {
     "presets": [
