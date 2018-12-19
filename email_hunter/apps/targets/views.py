@@ -4,9 +4,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import generic
 from django_tables2.views import SingleTableMixin
-from .models import Target
+from .models import Target, TargetFile
 from .forms import TargetUploadForm
-from .tables import TargetTable
+from .tables import TargetTable, TargetFileTable
 
 
 class TargetListView(SingleTableMixin, generic.ListView):
@@ -14,6 +14,12 @@ class TargetListView(SingleTableMixin, generic.ListView):
     model = Target
     template_name = 'targets/target_list_view.html'
     table_class = TargetTable
+
+
+class FileListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
+    model = TargetFile
+    template_name = 'targets/target_file_list_view.html'
+    table_class = TargetFileTable
 
 
 class TargetUploadView(LoginRequiredMixin, generic.FormView):

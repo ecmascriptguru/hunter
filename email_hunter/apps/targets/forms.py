@@ -17,7 +17,7 @@ class TargetUploadForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         if kwargs.get('user', None):
             self.user = kwargs.pop('user')
-            
+
         super(TargetUploadForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -61,12 +61,13 @@ class TargetUploadForm(forms.ModelForm):
                 self.errors['file'].append('This file doesn\'t have any new target. Choose another file...')
             else:
                 self.cleaned_data['new_targets'] = targets
-                self.cleaned_data['filename'] = file.name
+                self.instance.filename = file.name
+                self.instance.created_by = self.user
         return file
     
     def save(self, commit=True):
         new_targets = self.cleaned_data.pop('new_targets')
-        batch = (Target(**target, created_by=self.user) for target in new_targets)
         target_file = super(TargetUploadForm, self).save(commit)
+        batch = (Target(**target, created_by=self.user, file=target_file) for target in new_targets)
         target_file.targets.bulk_create(batch)
         return target_file
