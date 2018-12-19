@@ -54,3 +54,6 @@ DEFAULT_RECOVERY_PHONE = ENV_JSON.get('DEFAULT_RECOVERY_PHONE', None)
 
 if not DEFAULT_RECOVERY_EMAIL or not DEFAULT_RECOVERY_PHONE:
     raise ImportError('You should specify recovery email and phone.')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

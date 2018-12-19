@@ -1,0 +1,10 @@
+{% load crispy_forms_field %}
+
+<div class="form-group">
+    <label class="">
+        <div class="icheckbox_flat-green">
+            {% crispy_field field 'class' 'iCheck flag-green' %}
+        </div>
+        {{ field.label }}
+    </label>
+</div>
