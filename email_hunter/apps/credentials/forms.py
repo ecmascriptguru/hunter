@@ -42,7 +42,6 @@ class CredentialForm(forms.ModelForm):
             Div(BasicBootstrapFormField('email'), css_class='form-group'),
             Div(BasicBootstrapFormField('password'), css_class='form-group'),
             Field('has_linkedin', template='field_layouts/adminlite/checkbox.html'),
-            Div(BasicBootstrapFormField('state'), css_class='form-group'),
             ButtonHolder(
                 Submit('submit', 'Submit', css_class="pull-right")
             )

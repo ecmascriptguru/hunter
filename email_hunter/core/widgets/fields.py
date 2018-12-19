@@ -8,4 +8,4 @@ class BasicBootstrapFormField(Field):
         css = kwargs.pop('css_class', '')
         self.css_class += css
         super(BasicBootstrapFormField, self).__init__(css_class=self.css_class,
-            *args, **kwargs, )
+            wrapper_class='form-group', *args, **kwargs, )

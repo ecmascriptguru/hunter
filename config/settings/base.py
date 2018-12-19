@@ -39,11 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_tables2',
+    'crispy_forms',
+]
+
+INSTALLED_APPS += [
     'email_hunter.apps.users',
     'email_hunter.apps.proxies',
-    'django_tables2',
     'email_hunter.apps.credentials',
-    'crispy_forms',
+    'email_hunter.apps.targets',
 ]
 
 MIDDLEWARE = [
@@ -130,4 +134,4 @@ STATICFILES_DIRS = ( join('static'), )
 # Custom authentication configuration
 AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = ('email_hunter.core.backends.CaseInsensitiveModelBackend', )
-LOGIN_REDIRECT_URL = reverse_lazy('proxies:proxy_list_view')
+LOGIN_REDIRECT_URL = reverse_lazy('landings:dashboard_view')
