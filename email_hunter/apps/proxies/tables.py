@@ -7,7 +7,7 @@ class ProxyTable(tables.Table):
         model = Proxy
         template_name = 'django_tables2/bootstrap.html'
         exclude = ('id', 'external_plan_id', 'ip_address', 'port', 'created', )
-        sequence = ('row_number', 'proxy', 'plan_type', 'provider', 'state', )
+        sequence = ('row_number', 'proxy', 'provider', 'state', )
     
     row_number = tables.Column(empty_values=(), verbose_name='Number')
     proxy = tables.Column(empty_values=())

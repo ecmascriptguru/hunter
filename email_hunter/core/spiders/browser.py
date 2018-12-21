@@ -35,6 +35,8 @@ class Browser(webdriver.Chrome):
 
     _google_login_check_count = 0
 
+    _element_find_timer = 0
+
     def __init__(self, *args, **kwargs):
         if not kwargs.get('pk', None):
             credential = Credential.get_hold()
@@ -57,17 +59,18 @@ class Browser(webdriver.Chrome):
             raise ImproperlyConfigured('Chrome driver file doesn\' exist.')
 
         options = webdriver.ChromeOptions()
-        # options.add_argument("--headless")
         options.add_argument("--window-size=1200,900")
         options.add_argument('--dns-prefetch-disable')
         options.add_argument('--js-flags="--max_old_space_size=4096"')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-gpu')
-        # options.add_extension(extension_file)
 
         # Should be enabled
-        # prefs = {"profile.managed_default_content_settings.images":2}
-        # options.add_experimental_option("prefs",prefs)
+        if not settings.DEBUG:
+            options.add_argument("--headless")
+            
+            prefs = {"profile.managed_default_content_settings.images":2}
+            options.add_experimental_option("prefs",prefs)
 
         return options
     
@@ -80,11 +83,7 @@ class Browser(webdriver.Chrome):
                                 'noProxy': '',
                                 'class': "org.openqa.selenium.Proxy",
                                 'autodetect': False}
-
-        capabilities['proxy']['socksUsername'] = self.proxy.get('username')
-        capabilities['proxy']['socksPassword'] = self.proxy.get('password')
-        # return capabilities
-        return None
+        return capabilities
 
     def set_credential(self, credential):
         credential.state = CREDENTIAL_STATE.using
@@ -119,7 +118,11 @@ class Browser(webdriver.Chrome):
 
     def is_logged_into_linkedIn(self):
         if 'Adding a phone number adds security' in self.page_source:
-            self.find_element_by_class_name('secondary-action').click()
+            self._element_find_timer = 0
+            el = self.find_element_by_class_name('secondary-action')
+            if el is None:
+                return False
+            el.click()
             time.sleep(2)
 
         while(self._linkedin_login_check_count < 3):
@@ -149,24 +152,25 @@ class Browser(webdriver.Chrome):
         time.sleep(1)
 
         try:
+            self._element_find_timer = 0
             el = self.find_element_by_css_selector('#login-email')
+            if el is None:
+                return False
             el.send_keys(self.email)
 
+            self._element_find_timer = 0
             el = self.find_element_by_css_selector('#login-password')
+            if el is None:
+                return False
             el.send_keys(self.password)
             
+            self._element_find_timer = 0
             self.find_element_by_css_selector('#login-submit').click()
+            if el is None:
+                return False
             time.sleep(2)
 
             self._linkedin_login_check_count = 0
-        except TimeoutError as e:
-            print(str(e))
-            return False
-        except NoSuchElementException as e:
-            print(str(e))
-            # In case of proxy issue?
-            self.credential.change_proxy()
-            return False
         except Exception as e:
             print(str(e))
             return False
@@ -213,14 +217,19 @@ class Browser(webdriver.Chrome):
                 # Should do something in this case...
                 return False
 
-            time.sleep(1)
-
+            time.sleep(10)
+            
+            print(found)
             if found == 'email':
                 email_box = self.find_element_by_id('identifierId')
+                print(email_box)
                 email_box.send_keys(self.recovery_email)
             elif found == 'phone_number':
                 phone_number_box = self.find_element_by_id('phoneNumberId')
+                print(phone_number_box)
                 phone_number_box.send_keys(self.recovery_phone)
+            else:
+                print('something went wrong')
 
             action_buttons = self.find_elements_by_css_selector('span.RveJvd.snByac')
             next_button = action_buttons[0]
@@ -256,28 +265,37 @@ class Browser(webdriver.Chrome):
         time.sleep(1)
         
         try:
+            self._element_find_timer = 0
             el = self.find_element_by_css_selector('#identifierId')
+            if el is None:
+                return False
             el.send_keys(self.email)
 
-            self.find_element_by_id('identifierNext').click()
-            time.sleep(2)
-            
+            self._element_find_timer = 0
+            el = self.find_element_by_id('identifierNext')
+            if el is None:
+                return False
+            el.click()
+            time.sleep(10)
+
+            self._element_find_timer = 0
             el = self.find_element_by_name('password')
+            if el is None:
+                return False
             el.send_keys(self.password)
 
-            self.find_element_by_id('passwordNext').click()
-            time.sleep(4)
+            self._element_find_timer = 0
+            el = self.find_element_by_id('passwordNext')
+            if el is None:
+                return False
+            el.click()
+            time.sleep(10)
 
             print("HERE")
             if self.should_verify_google():
                 self.verify_google_account_with_recovery_info()
 
             self._google_login_check_count = 0
-
-        except TimeoutError as e:
-            print(str(e))
-        except NoSuchElementException as e:
-            print(str(e))
         except Exception as e:
             print(str(e))
         finally:
@@ -298,3 +316,76 @@ class Browser(webdriver.Chrome):
     def recovery_account(self):
         print("Recovering account {}...".format(self.email))
         return self.is_prepared
+    
+    # Override of default methods of super class
+    # to let it try to find elements 10 times
+    def find_element_by_css_selector(self, selector):
+        try:
+            return super(Browser, self).find_element_by_css_selector(selector)
+        except Exception as e:
+            print(str(e), self._element_find_timer)
+            time.sleep(2)
+            self._element_find_timer += 1
+            if self._element_find_timer < 10:
+                return self.find_element_by_css_selector(selector)
+            else:
+                return None
+    def find_elements_by_css_selector(self, selector):
+        try:
+            return super(Browser, self).find_elements_by_css_selector(selector)
+        except Exception as e:
+            print(str(e), self._element_find_timer)
+            time.sleep(2)
+            self._element_find_timer += 1
+            if self._element_find_timer < 10:
+                return self.find_elements_by_css_selector(selector)
+            else:
+                return []
+
+    def find_element_by_id(self, selector):
+        try:
+            return super(Browser, self).find_element_by_id(selector)
+        except Exception as e:
+            print(str(e), self._element_find_timer)
+            time.sleep(2)
+            self._element_find_timer += 1
+            if self._element_find_timer < 10:
+                return self.find_element_by_id(selector)
+            else:
+                return None
+
+    def find_element_by_name(self, selector):
+        try:
+            return super(Browser, self).find_element_by_name(selector)
+        except Exception as e:
+            print(str(e), self._element_find_timer)
+            time.sleep(2)
+            self._element_find_timer += 1
+            if self._element_find_timer < 10:
+                return self.find_element_by_name(selector)
+            else:
+                return None
+
+    def find_element_by_class_name(self, selector):
+        try:
+            return super(Browser, self).find_element_by_class_name(selector)
+        except Exception as e:
+            print(str(e), self._element_find_timer)
+            time.sleep(2)
+            self._element_find_timer += 1
+            if self._element_find_timer < 10:
+                return self.find_element_by_class_name(selector)
+            else:
+                return None
+
+    def find_elements_by_class_name(self, selector):
+        try:
+            return super(Browser, self).find_elements_by_class_name(selector)
+        except Exception as e:
+            print(str(e), self._element_find_timer)
+            time.sleep(2)
+            self._element_find_timer += 1
+            if self._element_find_timer < 10:
+                return self.find_elements_by_class_name(selector)
+            else:
+                return []
