@@ -5,7 +5,7 @@ from crispy_forms.helper import FormHelper
 from .models import Credential, CREDENTIAL_STATE
 from ...core.widgets.fields import BasicBootstrapFormField
 from ..proxies.models import Proxy
-from .tasks import activate_credential
+from .tasks import recovery_credential
 
 
 logger = logging.getLogger(__name__)
@@ -33,12 +33,13 @@ class CredentialForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(CredentialForm, self).__init__(*args, **kwargs)
+        self.fields['proxy'].queryset = Proxy.objects.filter(credential=None)
 
-        if not self.instance.pk:
-            self.fields['proxy'].queryset = Proxy.objects.filter(credential=None)
-        else:
+        if self.instance.pk:
             self.fields['email'].widget.attrs['readonly'] = True
             self.fields['password'].widget.attrs['readonly'] = True
+            if self.instance.proxy:
+                self.fields['proxy'].queryset |= Proxy.objects.filter(pk=self.instance.proxy.pk)
 
         self.helper = FormHelper()
         if self.instance.pk and self.instance.state == CREDENTIAL_STATE.hold:
@@ -68,8 +69,9 @@ class CredentialForm(forms.ModelForm):
         if self.instance.proxy:
             self.instance.state = CREDENTIAL_STATE.hold
         
+        credential = super(CredentialForm, self).save(commit)
         if self.data['submit'] == 'Activate':
             logger.debug("About to activate a credential {}!".format(self.instance))
 
-            activate_credential.delay(data=self.instance.pk)
-        return super(CredentialForm, self).save(commit)
+            recovery_credential.delay(credential.pk)
+        return credential

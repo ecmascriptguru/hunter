@@ -10,7 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            c, u = ProxyFetcher.fetch_all()
-            print("{0} proxies added and {1} proxies are updated.".format(c, u))
+            c, u, d = ProxyFetcher.fetch_all()
+            print("""{0} proxies deleted from database.\n"""
+            """{1} proxies added and {2} proxies are updated.""".format(d, c, u))
         except Exception as e:
             print(str(e))

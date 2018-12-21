@@ -26,3 +26,6 @@ celery[redis]==4.2.1
 kombu==4.2.2
 vine==1.1.4
 redis==3.0.1
+EasyProcess==0.2.3
+PyVirtualDisplay==0.2.1
+selenium==3.141.0

@@ -23,7 +23,6 @@ class CredentialTable(tables.Table):
         self.counter = itertools.count()
     
     def render_actions(self, record):
-        print("HEllo")
         return render_to_string(self.actions_template, context={'record': record})
 
     def render_row_number(self):

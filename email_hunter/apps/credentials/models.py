@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
-from ..proxies.models import Proxy
+from ..proxies.models import Proxy, PROXY_STATE
 
 
 class CREDENTIAL_STATE:
@@ -37,6 +37,12 @@ class Credential(TimeStampedModel):
 
     class Meta:
         ordering = ['modified', ]
+    
+    def change_proxy(self):
+        self.proxy.state = PROXY_STATE.inactive
+        self.proxy.save()
+        self.proxy = Proxy.get_active()
+        return self.save()
 
     @classmethod
     def actives(cls):

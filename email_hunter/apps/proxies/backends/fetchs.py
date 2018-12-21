@@ -17,6 +17,7 @@ class ProxyFetcher(object):
         
         url = "https://api.myprivateproxy.net/v1/fetchProxies/json/full/showPlanId/{0}".format(access_key)
         items = cls.get_proxies(url)
+        deleted, _ = Proxy.objects.filter(provider=PROXY_PROVIDER.MY_PRIVATE_PROXY).delete()
         created = 0
         updated = 0
 
@@ -33,7 +34,7 @@ class ProxyFetcher(object):
             else:
                 updated += 1
         
-        return created, updated
+        return created, updated, deleted
 
     @classmethod
     def get_proxies(cls, url, data={}, method='get'):
@@ -49,5 +50,5 @@ class ProxyFetcher(object):
     
     @classmethod
     def fetch_all(cls, *args, **kwargs):
-        created, updated = cls.fetch_myprivateproxy_proxies()
-        return created, updated
+        created, updated, deleted = cls.fetch_myprivateproxy_proxies()
+        return created, updated, deleted

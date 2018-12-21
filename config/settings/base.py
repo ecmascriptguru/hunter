@@ -153,3 +153,13 @@ CELERYD_MAX_TASKS_PER_CHILD = 1
 #         'schedule': 4 * 60 * 60,
 #     }
 # }
+
+from sys import platform
+if platform == 'darwin':
+    chromedriver = 'storage/chromedriver_mac'
+elif platform == 'win32':
+    chromedriver = 'storage/chromedriver.exe'
+else:
+    chromedriver = 'storage/chromedriver_linux'
+    
+CHROME_DRIVER_PATH = join(BASE_DIR, chromedriver)
