@@ -11,8 +11,8 @@ from ...core.spiders.hunter import Hunter
 
 logger = logging.getLogger(__name__)
 
-@shared_task
-def validate_targets(targets=[]):    
+@shared_task(bind=True)
+def validate_targets(self, targets=[]):
     if not Credential.is_available():
         return None, 'Credentials are not available'
     else:
@@ -20,8 +20,8 @@ def validate_targets(targets=[]):
             hunter = Hunter()
             for id in targets:
                 hunter.validate(id)
-            hunter.brwoser.quit(state=CREDENTIAL_STATE.active)
-            return True, 'Successfully validated.'
+            hunter.browser.quit(state=CREDENTIAL_STATE.active)
+            return True, 'Successfully finished.'
         except Exception as e:
             print(str(e))
             return False, str(e)

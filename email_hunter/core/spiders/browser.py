@@ -237,9 +237,6 @@ class Browser(webdriver.Chrome):
             next_button.click()
             time.sleep(3)
 
-            # if self.recovery_email_error_text in self.page_source:
-            #     try_another_button.click()
-            #     return False
             if self.email in self.page_source and self.recovery_email in self.page_source:
                 done_button = self.find_elements_by_css_selector('span.RveJvd.snByac')[1]
                 done_button.click()
