@@ -2,9 +2,10 @@ import tldextract
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, ButtonHolder, Submit, Div
-from .models import TargetFile, Target
 from ...core.widgets.fields import BasicBootstrapFormField
 from ...core.utils.parsers import parse_target
+from .models import TargetFile, Target, TARGET_STATE
+from .tasks import validate_targets
 
 
 class TargetUploadForm(forms.ModelForm):
@@ -31,11 +32,11 @@ class TargetUploadForm(forms.ModelForm):
     
     def clean_file(self, *args, **kwargs):
         file = self.cleaned_data['file']
-        _, rows = parse_target(file, self.cleaned_data['encode_type'])
+        _, msg, rows = parse_target(file, self.cleaned_data['encode_type'])
         if not _:
             if not self.errors['file']:
                 self.errors['file'] = list()
-            self.errors['file'].append('Input file not in correct format, must be xls, xlsx, csv, csv.gz, pkl')
+            self.errors['file'].append(msg)
         else:
             targets = list()
             for row in rows:
@@ -71,3 +72,40 @@ class TargetUploadForm(forms.ModelForm):
         batch = (Target(**target, created_by=self.user, file=target_file) for target in new_targets)
         target_file.targets.bulk_create(batch)
         return target_file
+
+
+class TargetUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Target
+        exclude = ('file', 'job', 'created_by', 'state', )
+    
+    def __init__(self, *args, **kwargs):
+        super(TargetUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        if self.instance.state in [TARGET_STATE.to_do, TARGET_STATE.has_error]:
+            self.helper.layout = Layout(
+                BasicBootstrapFormField('first_name'),
+                BasicBootstrapFormField('last_name'),
+                BasicBootstrapFormField('domain'),
+                ButtonHolder(
+                    Submit('submit', 'Submit', css_class='btn btn-primary pull-right'),
+                    Submit('submit', 'Validate', css_class='btn btn-info pull-left'),
+                    wrapper_class='form-group',
+                ),
+            )
+        else:
+            self.helper.layout = Layout(
+                BasicBootstrapFormField('first_name'),
+                BasicBootstrapFormField('last_name'),
+                BasicBootstrapFormField('domain'),
+                ButtonHolder(
+                    Submit('submit', 'Submit', css_class='btn btn-primary pull-right'),
+                    wrapper_class='form-group',
+                ),
+            )
+    
+    def save(self, commit=True):
+        if self.data['submit'] == 'Validate':
+            task = validate_targets.delay([self.instance.pk])
+            self.instance.state = TARGET_STATE.in_progress
+        return super(TargetUpdateForm, self).save(commit)

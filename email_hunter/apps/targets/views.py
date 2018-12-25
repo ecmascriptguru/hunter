@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django_tables2.views import SingleTableMixin
 from .models import Target, TargetFile
-from .forms import TargetUploadForm
+from .forms import TargetUploadForm, TargetUpdateForm
 from .tables import TargetTable, TargetFileTable
 
 
@@ -35,3 +35,10 @@ class TargetUploadView(LoginRequiredMixin, generic.FormView):
         params = super(TargetUploadView, self).get_form_kwargs(*args, **kwargs)
         params['user'] = self.request.user
         return params
+
+
+class TargetUpdateView(LoginRequiredMixin, generic.UpdateView):
+    form_class = TargetUpdateForm
+    success_url = reverse_lazy('targets:target_list_view')
+    template_name = 'targets/target_update_view.html'
+    model = Target

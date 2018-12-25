@@ -3,6 +3,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
 from ...apps.users.models import User
+from ...apps.jobs.models import Job, JOB_STATE
 
 
 class ENCODE_TYPE:
@@ -46,3 +47,11 @@ class Target(TimeStampedModel):
     domain = models.CharField(max_length=60)
     state = FSMField(default=TARGET_STATE.to_do, choices=TARGET_STATE_CHOICES)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='targets')
+    job = models.ForeignKey(Job, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name='targets')
+
+    class Meta:
+        unique_together = (('first_name', 'last_name', 'domain',),)
+
+    @classmethod
+    def todos(cls):
+        return cls.objects.filter(state__in=[TARGET_STATE.to_do, TARGET_STATE.has_error])

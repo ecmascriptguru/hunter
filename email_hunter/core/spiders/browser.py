@@ -109,11 +109,11 @@ class Browser(webdriver.Chrome):
         except Credential.DoesNotExists as e:
             raise Credential.DoesNotExists('Credential Not Found.')
 
-    def quit(self):
+    def quit(self, *args, **kwargs):
         if platform != 'win32' and not settings.DEBUG:
             self.display.stop()
 
-        self.rollback_credential_state()
+        self.rollback_credential_state(**kwargs)
         super(Browser, self).quit()
 
     def is_logged_into_linkedIn(self):
@@ -302,9 +302,9 @@ class Browser(webdriver.Chrome):
             return self.is_logged_into_gmail()
 
     @property
-    def is_prepared(self, task=None, total=1):
+    def is_prepared(self):
         if not self._is_prepared:
-            self._is_prepared = (self.login_gmail() and self.login_linkedin())
+            self._is_prepared = (self.login_linkedin() and self.login_gmail())
         
         if self._is_prepared:
             self.rollback_credential_state(state=CREDENTIAL_STATE.active)

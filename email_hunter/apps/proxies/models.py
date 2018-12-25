@@ -46,8 +46,6 @@ class Proxy(TimeStampedModel):
         validators=[MinValueValidator(1), MaxValueValidator(65535)],
         help_text='Port Number of proxy')
     provider = FSMField(default=PROXY_PROVIDER.PROXY_N_VPN, choices=PROVIDER_CHOICES)
-    username = models.CharField(max_length=32, default=None, null=True, blank=True)
-    password = models.CharField(max_length=32, default=None, null=True, blank=True)
     state = FSMField(default=PROXY_STATE.inactive, choices=STATE_CHOICES)
 
     def __str__(self):
@@ -65,6 +63,4 @@ class Proxy(TimeStampedModel):
     def to_json(self):
         return {
             "address": str(self),
-            "username": self.username,
-            "password": self.password
         }

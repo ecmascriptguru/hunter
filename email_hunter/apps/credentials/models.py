@@ -67,3 +67,7 @@ class Credential(TimeStampedModel):
     @classmethod
     def get_no_proxy(cls):
         return cls.no_proxies().first()
+    
+    @classmethod
+    def is_available(cls):
+        return cls.actives().exists()

@@ -49,6 +49,7 @@ INSTALLED_APPS += [
     'email_hunter.apps.proxies',
     'email_hunter.apps.credentials',
     'email_hunter.apps.targets',
+    'email_hunter.apps.jobs',
 ]
 
 MIDDLEWARE = [
