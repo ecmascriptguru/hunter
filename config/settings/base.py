@@ -164,3 +164,5 @@ else:
     chromedriver = 'storage/chromedriver_linux'
     
 CHROME_DRIVER_PATH = join(BASE_DIR, chromedriver)
+
+EMAIL_HUNTER_BATCH_SIZE = 10

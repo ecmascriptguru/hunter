@@ -1,0 +1,7 @@
+<div class="btn-block">
+    {% if record.is_ready %}
+    <a class="btn btn-xs" title="Edit" href="{% url 'targets:target_file_start_view' record.internal_uuid %}">
+        <i class="fa fa-play"></i>
+    </a>
+    {% endif %}
+</div>

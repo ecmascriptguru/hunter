@@ -52,6 +52,9 @@
           <li class="{% if request.path|startswith:'/rs/targets/' %} active {% endif %}">
             <a href="{% url 'targets:target_list_view' %}"><i class="glyphicon glyphicon-hdd"></i> Targets</a>
           </li>
+          <li class="{% if request.path|startswith:'/rs/jobs/' %} active {% endif %}">
+            <a href="{% url 'jobs:job_list_view' %}"><i class="glyphicon glyphicon-list"></i> Tasks</a>
+          </li>
         </ul>
       </li>
       <li class="treeview">

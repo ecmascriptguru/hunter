@@ -4,7 +4,7 @@ from django_fsm import FSMField
 
 
 class JOB_STATE:
-    default = None
+    default = 'n'
     pending = 'p'
     in_progress = 'i'
     completed = 'c'

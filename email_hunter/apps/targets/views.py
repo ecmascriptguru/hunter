@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django_tables2.views import SingleTableMixin
 from .models import Target, TargetFile
-from .forms import TargetUploadForm, TargetUpdateForm
+from .forms import TargetUploadForm, TargetUpdateForm, TargetFileStartForm
 from .tables import TargetTable, TargetFileTable
 
 
@@ -20,6 +20,15 @@ class FileListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
     model = TargetFile
     template_name = 'targets/target_file_list_view.html'
     table_class = TargetFileTable
+
+
+class FileStartView(generic.UpdateView):
+    form_class = TargetFileStartForm
+    template_name = 'targets/target_file_start_view.html'
+    success_url = reverse_lazy('jobs:job_list_view')
+
+    def get_object(self):
+        return TargetFile.objects.get(pk=self.kwargs.get('pk'))
 
 
 class TargetUploadView(LoginRequiredMixin, generic.FormView):

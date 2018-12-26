@@ -12,29 +12,65 @@ class ENCODE_TYPE:
     cp1252 = 'cp1252'
 
 
+class TARGET_STATE:
+    to_do = 't'
+    pending = 'p'
+    in_progress = 'i'
+    validated = 'v'
+    failed = 'f'
+    has_error = 'e'
+
+
+class TARGET_FILE_STATE:
+    default = 'n'
+    pending = 'p'
+    in_progress = 'i'
+    done = 'd'
+    archived = 'a'
+
+
 class TargetFile(TimeStampedModel):
     ENCODE_TYPE_CHOICES = (
         (ENCODE_TYPE.unicode, 'UTF-8'),
         (ENCODE_TYPE.latin1, 'Latin'),
         (ENCODE_TYPE.cp1252, 'CP 1252'),
     )
+
+    TARGET_FILE_STATE_CHOICES = (
+        (TARGET_FILE_STATE.default, 'Normal'),
+        (TARGET_FILE_STATE.pending, 'Pending'),
+        (TARGET_FILE_STATE.in_progress, 'In Progress'),
+        (TARGET_FILE_STATE.done, 'Done'),
+        (TARGET_FILE_STATE.archived, 'Archived'),
+    )
     internal_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     filename = models.CharField(max_length=128, null=True)
     encode_type = FSMField(default=ENCODE_TYPE.unicode, choices=ENCODE_TYPE_CHOICES)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='target_files')
+    state = FSMField(default=TARGET_FILE_STATE.default,
+                        choices=TARGET_FILE_STATE_CHOICES)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                        related_name='target_files')
 
+    def todos(self, limit=None):
+        qs = self.targets.filter(state__in=[TARGET_STATE.to_do, TARGET_STATE.has_error])
+        if limit:
+            return qs[:limit]
+        else:
+            return qs
 
-class TARGET_STATE:
-    to_do = 't'
-    in_progress = 'p'
-    validated = 'v'
-    failed = 'f'
-    has_error = 'e'
+    @property
+    def is_ready(self):
+        return self.state in [TARGET_FILE_STATE.default, TARGET_FILE_STATE.done] and len(self.todos()) > 0
+    
+    @classmethod
+    def availables(cls):
+        return cls.objects.filter(state__in=[TARGET_FILE_STATE.default, TARGET_FILE_STATE.done])
 
 
 class Target(TimeStampedModel):
     TARGET_STATE_CHOICES = (
         (TARGET_STATE.to_do, 'TO DO'),
+        (TARGET_STATE.pending, 'Pending'),
         (TARGET_STATE.in_progress, 'In Progress'),
         (TARGET_STATE.validated, 'Found'),
         (TARGET_STATE.failed, 'Not Found'),

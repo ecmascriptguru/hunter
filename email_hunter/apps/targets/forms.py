@@ -1,10 +1,14 @@
 import tldextract
 from django import forms
+from django.conf import settings
+from django.core.validators import ValidationError
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit, Div
+from crispy_forms.layout import Layout, ButtonHolder, Submit, Div, HTML
 from ...core.widgets.fields import BasicBootstrapFormField
 from ...core.utils.parsers import parse_target
-from .models import TargetFile, Target, TARGET_STATE
+from ...apps.jobs.models import Job, JOB_STATE
+from ...apps.credentials.models import Credential
+from .models import TargetFile, Target, TARGET_STATE, TARGET_FILE_STATE
 from .tasks import validate_targets
 
 
@@ -103,9 +107,57 @@ class TargetUpdateForm(forms.ModelForm):
                     wrapper_class='form-group',
                 ),
             )
-    
+
     def save(self, commit=True):
         if self.data['submit'] == 'Validate':
             task = validate_targets.delay([self.instance.pk])
             self.instance.state = TARGET_STATE.in_progress
+            self.instance.job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending)
         return super(TargetUpdateForm, self).save(commit)
+
+
+class TargetFileStartForm(forms.ModelForm):
+    class Meta:
+        model = TargetFile
+        fields = []
+    
+    def __init__(self, *args, **kwargs):
+        super(TargetFileStartForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            ButtonHolder(
+                Div(
+                    HTML('<h4>Are you sure that you want to start targets in this file?</h4>'),
+                    css_class='form-group'
+                ),
+                Submit('submit', 'Start', css_class='btn btn-primary pull-right'),
+                wrapper_class='form-group',
+            ),
+        )
+    
+    def clean(self, *args, **kwargs):
+        if not self.instance.is_ready:
+            raise ValidationError('This file is not ready to get started.')
+        if not Credential.is_available():
+            raise ValidationError('There is no available credentials now. Please try again.')
+        return super(TargetFileStartForm, self).clean(*args, **kwargs)
+
+    def save(self, commit=True):
+        limit = 2
+        if hasattr(settings, 'EMAIL_HUNTER_BATCH_SIZE'):
+            limit = settings.EMAIL_HUNTER_BATCH_SIZE
+
+        todos = self.instance.todos(limit)
+        try:
+            task = validate_targets.delay([target.pk for target in todos])
+            self.instance.state = TARGET_FILE_STATE.pending
+            job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending)
+            for todo in todos:
+                todo.state = TARGET_STATE.pending 
+                todo.job = job
+                todo.save()
+            
+            return super(TargetFileStartForm, self).save(commit)
+        except Exception as e:
+            raise ValidationError(str(e))
+            return None
