@@ -47,7 +47,7 @@
             <a href="{% url 'credentials:credential_list_view' %}"><i class="fa fa-key"></i> Credentials</a>
           </li>
           <li class="{% if request.path|startswith:'/rs/files/' %} active {% endif %}">
-            <a href="{% url 'targets:target_file_list_view' %}"><i class="glyphicon glyphicon-exclamation-sign"></i> Files</a>
+            <a href="{% url 'targets:target_file_list_view' %}"><i class="glyphicon glyphicon-file"></i> Files</a>
           </li>
           <li class="{% if request.path|startswith:'/rs/targets/' %} active {% endif %}">
             <a href="{% url 'targets:target_list_view' %}"><i class="glyphicon glyphicon-hdd"></i> Targets</a>
@@ -57,7 +57,7 @@
           </li>
         </ul>
       </li>
-      <li class="treeview">
+      <li class="treeview{% if request.path|startswith:'/st/' %} active {% endif %}">
         <a href="#">
           <i class="fa fa-database"></i> <span>Storage</span>
           <span class="pull-right-container">
@@ -65,7 +65,9 @@
           </span>
         </a>
         <ul class="treeview-menu">
-          <li ><a href=""><i class="glyphicon glyphicon-user"></i>Leads</a></li>
+          <li class="{% if request.path|startswith:'/st/leads/' %} active {% endif %}">
+            <a href="{% url 'leads:lead_list_view' %}"><i class="glyphicon glyphicon-user"></i> Leads</a>
+          </li>
         </ul>
       </li>
       <li class="treeview">

@@ -9,5 +9,7 @@ urlpatterns = [
         namespace='jobs')),
     path('rs/', include(('email_hunter.apps.targets.urls', 'email_hunter.apps.targets'),
         namespace='targets')),
+    path('st/leads/', include(('email_hunter.apps.leads.urls', 'email_hunter.apps.leads'),
+        namespace='leads')),
     path('', include(('email_hunter.apps.users.urls', 'email_hunter.apps.users'), namespace='landings')),
 ]
