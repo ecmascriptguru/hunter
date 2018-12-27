@@ -13,7 +13,7 @@ class JobTable(tables.Table):
         model = Job
         template_name = 'django_tables2/bootstrap.html'
         exclude = ('id', 'modified', )
-        sequence = ['row_number', 'internal_uuid', 'state', ]
+        sequence = ['row_number', 'internal_uuid', 'file', 'state', ]
 
     def __init__(self, *args, **kwargs):
         super(JobTable, self).__init__(**kwargs)
@@ -24,3 +24,6 @@ class JobTable(tables.Table):
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)
+    
+    def render_file(self, record):
+        return record.file.filename

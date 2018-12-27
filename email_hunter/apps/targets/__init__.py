@@ -1,0 +1,1 @@
+default_app_config = 'email_hunter.apps.targets.apps.TargetsConfig'

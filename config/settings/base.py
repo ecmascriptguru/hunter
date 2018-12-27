@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'crispy_forms',
     'celery',
+    'fieldsignals',
 ]
 
 INSTALLED_APPS += [
@@ -165,4 +166,4 @@ else:
     
 CHROME_DRIVER_PATH = join(BASE_DIR, chromedriver)
 
-EMAIL_HUNTER_BATCH_SIZE = 10
+EMAIL_HUNTER_BATCH_SIZE = 1

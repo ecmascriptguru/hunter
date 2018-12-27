@@ -21,48 +21,28 @@ def validate_targets(self, targets=[]):
         # try:
         target = Target.objects.get(pk=targets[0])
 
-        if target.file.state != TARGET_FILE_STATE.in_progress:
-            target.file.state = TARGET_FILE_STATE.in_progress
-            target.file.save()
-        if target.job.state != JOB_STATE.in_progress:
-            target.job.state = JOB_STATE.in_progress
-            target.job.save()
-
         hunter = Hunter(job_uuid=target.job.internal_uuid)
         for idx, id in enumerate(targets):
-            target = Target.objects.get(pk=id)
-            target.state = TARGET_STATE.in_progress
-            target.save()
-            hunter.validate(id, idx)
+            result = hunter.validate(id, idx)
+
             # To have browser grab cookies
             if idx < len(targets) - 1:
                 hunter.browser.open_gmail()
         hunter.browser.quit(state=CREDENTIAL_STATE.active)
-        target.file.state = TARGET_FILE_STATE.done
-        target.file.save()
-        target.job.state = JOB_STATE.completed
-        target.job.save()
+
+        target = Target.objects.get(pk=targets[-1])
+        job = target.job
+        if job.state != JOB_STATE.completed:
+            job.state = JOB_STATE.completed
+            job.save()
+        
+        if job.file:
+            file = target.job.file
+            if file.state != TARGET_FILE_STATE.done:
+                file.state = TARGET_FILE_STATE.done
+                file.save()
+
         return True, 'Successfully finished.'
         # except Exception as e:
         #     print(str(e))
         #     return False, str(e)
-
-
-@shared_task(bind=True)
-def process_file(self, file_id=None):
-    if file_id is None:
-        raise Exception("file_id is required.")
-    
-    limit = 5
-    if hasattr(settings, 'EMAIL_HUNTER_BATCH_SIZE'):
-        limit = settings.EMAIL_HUNTER_BATCH_SIZE
-
-    if Credential.is_available():
-        file = TargetFile.objects.get(pk=file_id)
-        todos = file.todos(limit)
-        file.state = TARGET_FILE_STATE.in_progress
-        file.save()
-
-        todos.update(state=TARGET_STATE.pending, )
-    else:
-        return False, 'Credentials are not available any more...'

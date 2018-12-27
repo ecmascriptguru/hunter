@@ -184,13 +184,18 @@ class TargetFileForm(forms.ModelForm):
                 limit = settings.EMAIL_HUNTER_BATCH_SIZE
 
             todos = self.instance.todos(limit)
+
+            self.instance.state = TARGET_FILE_STATE.pending    
             task = validate_targets.delay([target.pk for target in todos])
-            self.instance.state = TARGET_FILE_STATE.pending
-            job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending)
+
+            job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending,
+                    file=self.instance)
+
             for todo in todos:
-                todo.state = TARGET_STATE.pending 
+                todo.state = TARGET_STATE.pending
                 todo.job = job
                 todo.save()
+            
         elif self.data['submit'] == 'Stop':
             self.instance.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress]).\
                     update(state=JOB_STATE.completed)

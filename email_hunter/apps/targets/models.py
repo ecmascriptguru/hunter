@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
+from ...apps.jobs.models import JOB_STATE
+
 
 class ENCODE_TYPE:
     unicode = 'utf-8'
@@ -62,6 +64,10 @@ class TargetFile(TimeStampedModel):
     @property
     def is_pending_or_in_progress(self):
         return self.state in [TARGET_FILE_STATE.pending, TARGET_FILE_STATE.in_progress]
+    
+    @property
+    def has_pending_or_in_progress_jobs(self):
+        return len(self.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress])) > 0
     
     @classmethod
     def availables(cls):
