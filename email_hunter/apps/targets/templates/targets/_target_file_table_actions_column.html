@@ -1,7 +1,9 @@
 <div class="btn-block">
-    {% if record.is_ready %}
-    <a class="btn btn-xs" title="Edit" href="{% url 'targets:target_file_start_view' record.internal_uuid %}">
+    <a class="btn btn-xs" title="Edit" href="{% url 'targets:target_file_update_view' record.internal_uuid %}">
+        {% if record.is_ready %}
         <i class="fa fa-play"></i>
+        {% elif record.is_pending_or_in_progress %}
+        <i class="fa fa-stop"></i>
+        {% endif %}
     </a>
-    {% endif %}
 </div>

@@ -97,6 +97,21 @@ class TargetUpdateForm(forms.ModelForm):
                     wrapper_class='form-group',
                 ),
             )
+        elif self.instance.state in [TARGET_STATE.pending, TARGET_STATE.in_progress]:
+            self.fields['first_name'].widget.attrs['readonly'] = True
+            self.fields['last_name'].widget.attrs['readonly'] = True
+            self.fields['domain'].widget.attrs['readonly'] = True
+            self.helper.layout = Layout(
+                Div(HTML('<h6 class="alert alert-warning">This target is in progress</h6>'),
+                    css_class='form-group'),
+                BasicBootstrapFormField('first_name'),
+                BasicBootstrapFormField('last_name'),
+                BasicBootstrapFormField('domain'),
+                ButtonHolder(
+                    Submit('submit', 'Cancel', css_class='btn btn-secondary pull-right'),
+                    wrapper_class='form-group',
+                ),
+            )
         else:
             self.helper.layout = Layout(
                 BasicBootstrapFormField('first_name'),
@@ -113,42 +128,62 @@ class TargetUpdateForm(forms.ModelForm):
             task = validate_targets.delay([self.instance.pk])
             self.instance.state = TARGET_STATE.in_progress
             self.instance.job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending)
-        return super(TargetUpdateForm, self).save(commit)
+        
+        if self.data['submit'] == 'Cancel':
+            return self.instance
+        else:
+            return super(TargetUpdateForm, self).save(commit)
 
 
-class TargetFileStartForm(forms.ModelForm):
+class TargetFileForm(forms.ModelForm):
     class Meta:
         model = TargetFile
         fields = []
     
     def __init__(self, *args, **kwargs):
-        super(TargetFileStartForm, self).__init__(*args, **kwargs)
+        super(TargetFileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            ButtonHolder(
-                Div(
-                    HTML('<h4>Are you sure that you want to start targets in this file?</h4>'),
-                    css_class='form-group'
+        if self.instance.is_ready:
+            self.helper.layout = Layout(
+                ButtonHolder(
+                    Div(
+                        HTML('<h4>Are you sure that you want to start targets in this file?</h4>'),
+                        css_class='form-group'
+                    ),
+                    Submit('submit', 'Start', css_class='btn btn-primary pull-right'),
+                    wrapper_class='form-group',
                 ),
-                Submit('submit', 'Start', css_class='btn btn-primary pull-right'),
-                wrapper_class='form-group',
-            ),
-        )
+            )
+        elif self.instance.is_pending_or_in_progress:
+            self.helper.layout = Layout(
+                ButtonHolder(
+                    Div(
+                        HTML('<h4>Are you sure that you want to stop jobs running in this file?</h4>'),
+                        css_class='form-group'
+                    ),
+                    Submit('submit', 'Stop', css_class='btn btn-primary pull-right'),
+                    wrapper_class='form-group',
+                ),
+            )
     
     def clean(self, *args, **kwargs):
-        if not self.instance.is_ready:
-            raise ValidationError('This file is not ready to get started.')
-        if not Credential.is_available():
-            raise ValidationError('There is no available credentials now. Please try again.')
-        return super(TargetFileStartForm, self).clean(*args, **kwargs)
+        if self.data['submit'] == 'Start':
+            if not self.instance.is_ready:
+                raise ValidationError('This file is not ready to get started.')
+            if not Credential.is_available():
+                raise ValidationError('There is no available credentials now. Please try again.')
+        elif self.data['submit'] == 'Stop':
+            if not self.instance.is_pending_or_in_progress:
+                raise ValidationError('This file has no jobs pending or in progress')
+        return super(TargetFileForm, self).clean(*args, **kwargs)
 
     def save(self, commit=True):
-        limit = 2
-        if hasattr(settings, 'EMAIL_HUNTER_BATCH_SIZE'):
-            limit = settings.EMAIL_HUNTER_BATCH_SIZE
+        if self.data['submit'] == 'Start':
+            limit = 2
+            if hasattr(settings, 'EMAIL_HUNTER_BATCH_SIZE'):
+                limit = settings.EMAIL_HUNTER_BATCH_SIZE
 
-        todos = self.instance.todos(limit)
-        try:
+            todos = self.instance.todos(limit)
             task = validate_targets.delay([target.pk for target in todos])
             self.instance.state = TARGET_FILE_STATE.pending
             job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending)
@@ -156,8 +191,9 @@ class TargetFileStartForm(forms.ModelForm):
                 todo.state = TARGET_STATE.pending 
                 todo.job = job
                 todo.save()
-            
-            return super(TargetFileStartForm, self).save(commit)
-        except Exception as e:
-            raise ValidationError(str(e))
-            return None
+        elif self.data['submit'] == 'Stop':
+            self.instance.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress]).\
+                    update(state=JOB_STATE.completed)
+            self.instance.state = TARGET_FILE_STATE.done
+        
+        return super(TargetFileForm, self).save(commit)

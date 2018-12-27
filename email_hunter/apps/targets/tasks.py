@@ -35,8 +35,13 @@ def validate_targets(self, targets=[]):
             target.save()
             hunter.validate(id, idx)
             # To have browser grab cookies
-            hunter.browser.open_gmail()
+            if idx < len(targets) - 1:
+                hunter.browser.open_gmail()
         hunter.browser.quit(state=CREDENTIAL_STATE.active)
+        target.file.state = TARGET_FILE_STATE.done
+        target.file.save()
+        target.job.state = JOB_STATE.completed
+        target.job.save()
         return True, 'Successfully finished.'
         # except Exception as e:
         #     print(str(e))

@@ -12,7 +12,7 @@ class TargetTable(tables.Table):
     class Meta:
         model = Target
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('file', 'id', 'modified', 'job', )
+        exclude = ('file', 'id', 'created', 'job', )
         sequence = ['row_number', 'first_name', 'last_name', 'domain', 'state', 'created_by', ]
 
     def __init__(self, *args, **kwargs):
@@ -35,7 +35,7 @@ class TargetFileTable(tables.Table):
     class Meta:
         model = TargetFile
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('internal_uuid', 'modified', )
+        exclude = ('internal_uuid', 'created', )
         sequence = ['row_number', 'filename', 'targets', 'encode_type', 'created_by', ]
 
     def __init__(self, *args, **kwargs):

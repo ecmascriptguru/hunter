@@ -2,9 +2,6 @@ import uuid
 from django.db import models
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
-from ...apps.users.models import User
-from ...apps.jobs.models import Job, JOB_STATE
-
 
 class ENCODE_TYPE:
     unicode = 'utf-8'
@@ -48,7 +45,7 @@ class TargetFile(TimeStampedModel):
     encode_type = FSMField(default=ENCODE_TYPE.unicode, choices=ENCODE_TYPE_CHOICES)
     state = FSMField(default=TARGET_FILE_STATE.default,
                         choices=TARGET_FILE_STATE_CHOICES)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+    created_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True,
                         related_name='target_files')
 
     def todos(self, limit=None):
@@ -61,6 +58,10 @@ class TargetFile(TimeStampedModel):
     @property
     def is_ready(self):
         return self.state in [TARGET_FILE_STATE.default, TARGET_FILE_STATE.done] and len(self.todos()) > 0
+    
+    @property
+    def is_pending_or_in_progress(self):
+        return self.state in [TARGET_FILE_STATE.pending, TARGET_FILE_STATE.in_progress]
     
     @classmethod
     def availables(cls):
@@ -82,8 +83,8 @@ class Target(TimeStampedModel):
     last_name = models.CharField(max_length=60)
     domain = models.CharField(max_length=60)
     state = FSMField(default=TARGET_STATE.to_do, choices=TARGET_STATE_CHOICES)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='targets')
-    job = models.ForeignKey(Job, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name='targets')
+    created_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='targets')
+    job = models.ForeignKey('jobs.Job', on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name='targets')
 
     class Meta:
         unique_together = (('first_name', 'last_name', 'domain',),)
