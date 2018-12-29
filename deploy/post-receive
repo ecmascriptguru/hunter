@@ -1,0 +1,28 @@
+#!/bin/bash
+while read oldrev newrev ref
+do
+    if [[ $ref =~ .*/dev$ ]];
+    then
+        echo "Dev ref received.  Deploying dev branch to staging..."
+        git --work-tree=/var/www/email.hunter --git-dir=/home/ubuntu/email.hunter checkout -f
+
+        echo "Activating python environment"
+        source ~/Envs/staging.email.hunter/bin/activate
+
+        echo "Installing dependencies..."
+        cd /var/www/email.hunter
+        pip install -r requirements/staging.txt
+
+        echo "Migrating database..."
+        python manage.py migrate
+
+        echo "Installing node dependencies and building assets..."
+        npm install
+        npm run build
+        gulp build
+
+        deactivate
+    else
+        echo "Ref $ref successfully received.  Doing nothing: only the master branch may be deployed on this server."
+    fi
+done

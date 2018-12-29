@@ -2,9 +2,9 @@ import json
 from config.settings.base import *
 # READ Secured environments
 LOCAL_ENV_LOCATION = dirname(BASE_DIR)
-ENV_FILE = join(LOCAL_ENV_LOCATION, 'django_email_hunter_local.env.json')
+ENV_FILE = join(LOCAL_ENV_LOCATION, 'django_email_hunter_staging.env.json')
 if not exists(ENV_FILE):
-    raise ImproperlyConfigured("No local environment file was found in directory: {0}".format(LOCAL_ENV_LOCATION))
+    raise ImproperlyConfigured("No staging environment file was found in directory: {0}".format(LOCAL_ENV_LOCATION))
 with open(ENV_FILE) as data_file:
     ENV_JSON = json.load(data_file)
 
