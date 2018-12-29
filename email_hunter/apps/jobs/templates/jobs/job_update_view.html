@@ -1,7 +1,6 @@
 {% extends "layouts/admin_lte_base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
-{% load job_tags %}
 
 {% block body %}
 <section class="content-header">
@@ -24,36 +23,19 @@
                 <div class="box-header">
                     Task Detail{% crispy form %}
                 </div>
-                <div class="box-body">
-                    {{ task.state }}
-                    <h4 class="text-center">Job Detail</h4>
-                    <div class="progress-group">
-                        <span class="progress-text">{{ task.info.prepare.msg }}</span>
-                        <div class="progress sm">
-                            <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_prepare_pecent }}%;"></div>
-                        </div>
-                    </div>
-                    <div class="progress-group">
-                        <span class="progress-text">{{ task.info.candidates.msg }}</span>
-                        <div class="progress sm">
-                            <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_candidates_pecent }}%;"></div>
-                        </div>
-                    </div>
-                    <div class="progress-group">
-                        <span class="progress-text">{{ task.info.step.msg }}</span>
-                        <div class="progress sm">
-                            <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_step_pecent }}%;"></div>
-                        </div>
-                    </div>
-                    <div class="progress-group">
-                        <span class="progress-text">{{ task.info.pattern.msg }}</span>
-                        <div class="progress sm">
-                            <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_pattern_pecent }}%;"></div>
-                        </div>
-                    </div>
+                <div class="box-body" id="live-view-container">
+                    {% include 'jobs/_job_detail.html' %}
                 </div>
             </div>
         </div>
     </div>
 </section>
 {% endblock body %}
+
+{% block custom_js %}
+<script type="text/javascript">
+$(document).ready(() => {
+    window.EmailHunter.tools.enableLiveView()
+})
+</script>
+{% endblock custom_js %}

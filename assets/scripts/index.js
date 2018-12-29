@@ -4,4 +4,12 @@ require('bootstrap')
 require('admin-lte')
 require('icheck')
 
-console.log('hello')
+import { enableLiveView } from "./utils/live";
+
+window.EmailHunter = (() => {
+    return {
+        tools: {
+            enableLiveView
+        }
+    }
+})()

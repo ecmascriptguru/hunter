@@ -15,8 +15,8 @@ class JobTable(tables.Table):
     class Meta:
         model = Job
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('id', 'modified', )
-        sequence = ['row_number', 'internal_uuid', 'file', 'state', 'progress', 'created']
+        exclude = ('id', 'created', )
+        sequence = ['row_number', 'internal_uuid', 'file', 'state', 'progress', 'modified']
 
     def __init__(self, *args, **kwargs):
         super(JobTable, self).__init__(**kwargs)

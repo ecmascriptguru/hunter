@@ -1,0 +1,27 @@
+{% load job_tags %}
+<span>{{ task.state }}</span>
+<h4 class="text-center">Job Detail</h4>
+<div class="progress-group">
+    <span class="progress-text">{{ task.info.prepare.msg }}</span>
+    <div class="progress sm">
+        <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_prepare_pecent }}%;"></div>
+    </div>
+</div>
+<div class="progress-group">
+    <span class="progress-text">{{ task.info.candidates.msg }}</span>
+    <div class="progress sm">
+        <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_candidates_pecent }}%;"></div>
+    </div>
+</div>
+<div class="progress-group">
+    <span class="progress-text">{{ task.info.step.msg }}</span>
+    <div class="progress sm">
+        <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_step_pecent }}%;"></div>
+    </div>
+</div>
+<div class="progress-group">
+    <span class="progress-text">{{ task.info.pattern.msg }}</span>
+    <div class="progress sm">
+        <div class="progress-bar progress-bar-aqua" style="width:{{ object|job_pattern_pecent }}%;"></div>
+    </div>
+</div>
