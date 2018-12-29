@@ -191,16 +191,12 @@ class TargetFileForm(forms.ModelForm):
             todos = self.instance.todos(limit)
 
             while len(todos) > 0:
-                # Create a job without any internal_id for task uuid
-                job = Job.objects.create(state=JOB_STATE.pending, file=self.instance)
+                # Create a job without any internal_uuid for task uuid
                 for todo in todos:
                     todo.state = TARGET_STATE.pending
-                    todo.job = job
                     todo.save()
 
-                task = validate_targets.delay([target.pk for target in todos])
-                job.internal_uuid = task.id
-                job.save()
+                task = validate_targets.delay([target.pk for target in todos], self.instance.internal_uuid)
                 todos = self.instance.todos(limit)
         elif self.data['submit'] == 'Stop':
             self.instance.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress]).\

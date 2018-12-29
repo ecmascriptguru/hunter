@@ -12,6 +12,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from ...apps.credentials.models import Credential, CREDENTIAL_STATE
+from ...apps.targets.models import TARGET_FILE_STATE
 
 
 class Browser(webdriver.Chrome):
@@ -48,7 +49,7 @@ class Browser(webdriver.Chrome):
 
         self.set_credential(credential)
         super(Browser, self).__init__(self.chromedriver_path, options=self.get_options(),
-                desired_capabilities=self.get_desired_capabilities())
+                desired_capabilities=self.get_desired_capabilities(), **kwargs)
     
     def get_options(self):
         if platform != 'win32' and not settings.DEBUG:
@@ -101,13 +102,10 @@ class Browser(webdriver.Chrome):
         return Credential.objects.get(pk=self.credential_pk)
     
     def rollback_credential_state(self, state=CREDENTIAL_STATE.hold):
-        try:
-            credential = self.credential
-            if credential.state in [CREDENTIAL_STATE.processing, CREDENTIAL_STATE.using]:
-                credential.state = state
-                credential.save()
-        except Credential.DoesNotExists as e:
-            raise Credential.DoesNotExists('Credential Not Found.')
+        credential = self.credential
+        if credential.state != state:
+            credential.state = state
+            credential.save()
 
     def quit(self, *args, **kwargs):
         if platform != 'win32' and not settings.DEBUG:
@@ -193,6 +191,9 @@ class Browser(webdriver.Chrome):
 
         print('Something went wrong with gmail')
         return False
+    
+    def open_gplus(self):
+        self.get('https://plus.google.com/people')
 
     def should_verify_google(self):
         return (self.recovery_phone_number_option_text in self.page_source or
@@ -219,14 +220,11 @@ class Browser(webdriver.Chrome):
 
             time.sleep(10)
             
-            print(found)
             if found == 'email':
                 email_box = self.find_element_by_id('identifierId')
-                print(email_box)
                 email_box.send_keys(self.recovery_email)
             elif found == 'phone_number':
                 phone_number_box = self.find_element_by_id('phoneNumberId')
-                print(phone_number_box)
                 phone_number_box.send_keys(self.recovery_phone)
             else:
                 print('something went wrong')
@@ -288,7 +286,6 @@ class Browser(webdriver.Chrome):
             el.click()
             time.sleep(10)
 
-            print("HERE")
             if self.should_verify_google():
                 self.verify_google_account_with_recovery_info()
 
@@ -327,6 +324,7 @@ class Browser(webdriver.Chrome):
                 return self.find_element_by_css_selector(selector)
             else:
                 return None
+
     def find_elements_by_css_selector(self, selector):
         try:
             return super(Browser, self).find_elements_by_css_selector(selector)

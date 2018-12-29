@@ -14,20 +14,23 @@ from ...core.spiders.hunter import Hunter
 logger = logging.getLogger(__name__)
 
 @shared_task(bind=True)
-def validate_targets(self, targets=[]):
+def validate_targets(self, targets=[], file_id=None):
     if not Credential.is_available():
         return None, 'Credentials are not available'
     else:
         # try:
+        job = Job.objects.create(internal_uuid=self.request.id, file_id=file_id,
+                state=JOB_STATE.in_progress)
         hunter = Hunter(self, len(targets))
-        # Wait for job to be initiated.
-        time.sleep(1)
-        target = Target.objects.get(pk=targets[0])
-        hunter.set_job(target.job.internal_uuid)
-        for idx, id in enumerate(targets):
-            result, lead = hunter.validate(id, idx)
         
-        meta =  hunter.default_meta
+        for idx, id in enumerate(targets):
+            target = Target.objects.get(pk=id)
+            target.job = job
+            target.save()
+
+        for idx, id in enumerate(targets):
+            result, _ = hunter.validate(id, idx)
+
         return hunter.stop()
         # except Exception as e:
         #     print(str(e))
