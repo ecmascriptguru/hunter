@@ -4,7 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import force_text
-import logging
+import logging, time
 from ...apps.credentials.models import Credential, CREDENTIAL_STATE
 from ...apps.targets.models import Target, TargetFile, TARGET_STATE, TARGET_FILE_STATE
 from ...apps.jobs.models import Job, JOB_STATE
@@ -19,30 +19,16 @@ def validate_targets(self, targets=[]):
         return None, 'Credentials are not available'
     else:
         # try:
+        hunter = Hunter(self, len(targets))
+        # Wait for job to be initiated.
+        time.sleep(1)
         target = Target.objects.get(pk=targets[0])
-
-        hunter = Hunter(job_uuid=target.job.internal_uuid)
+        hunter.set_job(target.job.internal_uuid)
         for idx, id in enumerate(targets):
-            result = hunter.validate(id, idx)
-
-            # To have browser grab cookies
-            if idx < len(targets) - 1:
-                hunter.browser.open_gmail()
-        hunter.browser.quit(state=CREDENTIAL_STATE.active)
-
-        target = Target.objects.get(pk=targets[-1])
-        job = target.job
-        if job.state != JOB_STATE.completed:
-            job.state = JOB_STATE.completed
-            job.save()
+            result, lead = hunter.validate(id, idx)
         
-        if job.file:
-            file = target.job.file
-            if file.state != TARGET_FILE_STATE.done:
-                file.state = TARGET_FILE_STATE.done
-                file.save()
-
-        return True, 'Successfully finished.'
+        meta =  hunter.default_meta
+        return hunter.stop()
         # except Exception as e:
         #     print(str(e))
         #     return False, str(e)

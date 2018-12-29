@@ -63,4 +63,5 @@ Django Task Queue settings.
 """
 
 CELERY_BROKER_URL = ENV_JSON.get('REDIS_URL', None)
+CELERY_RESULT_BACKEND = ENV_JSON.get('REDIS_URL', None)
 # CELERY_TASK_ALWAYS_EAGER = True

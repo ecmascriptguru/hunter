@@ -125,10 +125,11 @@ class TargetUpdateForm(forms.ModelForm):
 
     def save(self, commit=True):
         if self.data['submit'] == 'Validate':
+            self.instance.state = TARGET_STATE.pending
+            self.instance.job = Job.objects.create(state=JOB_STATE.pending)
             task = validate_targets.delay([self.instance.pk])
-            self.instance.state = TARGET_STATE.in_progress
-            self.instance.job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending)
-        
+            self.instance.job.internal_uuid = task.id
+            self.instance.job.save()
         if self.data['submit'] == 'Cancel':
             return self.instance
         else:
@@ -183,19 +184,24 @@ class TargetFileForm(forms.ModelForm):
             if hasattr(settings, 'EMAIL_HUNTER_BATCH_SIZE'):
                 limit = settings.EMAIL_HUNTER_BATCH_SIZE
 
+            self.instance.state = TARGET_FILE_STATE.pending
+            if commit:
+                self.instance.save()
+            
             todos = self.instance.todos(limit)
 
-            self.instance.state = TARGET_FILE_STATE.pending    
-            task = validate_targets.delay([target.pk for target in todos])
+            while len(todos) > 0:
+                # Create a job without any internal_id for task uuid
+                job = Job.objects.create(state=JOB_STATE.pending, file=self.instance)
+                for todo in todos:
+                    todo.state = TARGET_STATE.pending
+                    todo.job = job
+                    todo.save()
 
-            job = Job.objects.create(internal_uuid=task.id, state=JOB_STATE.pending,
-                    file=self.instance)
-
-            for todo in todos:
-                todo.state = TARGET_STATE.pending
-                todo.job = job
-                todo.save()
-            
+                task = validate_targets.delay([target.pk for target in todos])
+                job.internal_uuid = task.id
+                job.save()
+                todos = self.instance.todos(limit)
         elif self.data['submit'] == 'Stop':
             self.instance.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress]).\
                     update(state=JOB_STATE.completed)

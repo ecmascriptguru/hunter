@@ -7,13 +7,14 @@ from .models import Target, TargetFile
 class TargetTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
     actions = tables.Column(empty_values=(), orderable=False)
+    full_name = tables.Column(empty_values=(), verbose_name='Full Name', orderable=False)
     actions_template = 'targets/_target_table_actions_column.html'
 
     class Meta:
         model = Target
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('file', 'id', 'created', 'job', )
-        sequence = ['row_number', 'first_name', 'last_name', 'domain', 'state', 'created_by', ]
+        exclude = ('file', 'id', 'created', 'job', 'first_name', 'last_name', )
+        sequence = ['row_number', 'full_name', 'domain', 'state', 'created_by', ]
 
     def __init__(self, *args, **kwargs):
         super(TargetTable, self).__init__(**kwargs)
@@ -21,6 +22,9 @@ class TargetTable(tables.Table):
 
     def render_actions(self, record):
         return render_to_string(self.actions_template, context={'record': record})
+    
+    def render_full_name(self, record):
+        return record.full_name
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)

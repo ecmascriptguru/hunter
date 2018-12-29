@@ -1,7 +1,10 @@
+from datetime import timedelta
 from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django_tables2.views import SingleTableMixin
+from django.utils import timezone
+from ...apps.targets.tasks import validate_targets
 from .models import Job, JOB_STATE
 from .tables import JobTable
 from .forms import JobForm
@@ -14,7 +17,9 @@ class JobListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(JobListView, self).get_queryset(*args, **kwargs)
-        return qs.exclude(state=JOB_STATE.archived)
+        offset = timezone.now() - timedelta(minutes=2)
+        return qs.exclude(state=JOB_STATE.archived)\
+                .exclude(state=JOB_STATE.completed, modified__lt=offset)
 
 
 class JobDetailView(LoginRequiredMixin, generic.UpdateView):
@@ -24,3 +29,9 @@ class JobDetailView(LoginRequiredMixin, generic.UpdateView):
 
     def get_object(self):
         return Job.objects.get(internal_uuid=self.kwargs.get('pk'))
+    
+    def get_context_data(self, *args, **kwargs):
+        params = super(JobDetailView, self).get_context_data(*args, **kwargs)
+        item = self.get_object()
+        params['task'] = validate_targets.AsyncResult(str(item.internal_uuid))
+        return params

@@ -1,15 +1,7 @@
 from django.db import models
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
-
-
-class JOB_STATE:
-    default = 'n'
-    pending = 'p'
-    in_progress = 'i'
-    completed = 'c'
-    got_error = 'e'
-    archived = 'a'
+from . import JOB_STATE
 
 
 class Job(TimeStampedModel):

@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
-from ...apps.jobs.models import JOB_STATE
+from ...apps.jobs import JOB_STATE
 
 
 class ENCODE_TYPE:
@@ -94,6 +94,10 @@ class Target(TimeStampedModel):
 
     class Meta:
         unique_together = (('first_name', 'last_name', 'domain',),)
+
+    @property
+    def full_name(self):
+        return "{0} {1}".format(self.first_name, self.last_name)
 
     @classmethod
     def todos(cls):

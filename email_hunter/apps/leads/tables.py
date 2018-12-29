@@ -7,7 +7,7 @@ from .models import Lead
 class LeadTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
     actions = tables.Column(empty_values=(), orderable=False)
-    actions_template = 'jobs/_job_table_actions_column.html'
+    actions_template = 'leads/_lead_table_actions_column.html'
 
     class Meta:
         model = Lead
@@ -21,6 +21,12 @@ class LeadTable(tables.Table):
 
     def render_actions(self, record):
         return render_to_string(self.actions_template, context={'record': record})
+    
+    def render_target(self, record):
+        if record.target:
+            return record.target.full_name
+        else:
+            return 'Deleted'
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)
