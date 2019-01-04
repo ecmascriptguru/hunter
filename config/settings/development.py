@@ -58,6 +58,8 @@ if not DEFAULT_RECOVERY_EMAIL or not DEFAULT_RECOVERY_PHONE:
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+ALLOWED_HOSTS = ENV_JSON.get('ALLOWED_HOSTS', [])
+
 """
 Django Task Queue settings.
 """
