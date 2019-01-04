@@ -9,7 +9,7 @@ from .forms import TargetUploadForm, TargetUpdateForm, TargetFileForm
 from .tables import TargetTable, TargetFileTable
 
 
-class TargetListView(SingleTableMixin, generic.ListView):
+class TargetListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
     decorators = [login_required]
     model = Target
     template_name = 'targets/target_list_view.html'
@@ -22,7 +22,7 @@ class FileListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
     table_class = TargetFileTable
 
 
-class FileUpdateView(generic.UpdateView):
+class FileUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = TargetFileForm
     template_name = 'targets/target_file_start_view.html'
     success_url = reverse_lazy('jobs:job_list_view')

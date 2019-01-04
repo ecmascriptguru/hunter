@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,7 @@ from .backends import ProxyFetcher
 from .tables import ProxyTable
 
 
-class ProxyListView(SingleTableMixin, ListView):
+class ProxyListView(LoginRequiredMixin, SingleTableMixin, ListView):
     decorators = [login_required]
     model = Proxy
     table_class = ProxyTable

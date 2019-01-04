@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, reverse
 from django.urls import reverse_lazy
 from django.conf import settings
@@ -8,14 +9,14 @@ from .tables import CredentialTable, Credential
 from .forms import CredentialUploadForm, CredentialForm
 
 
-class CredentialListView(SingleTableMixin, generic.ListView):
+class CredentialListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
     decorators = [login_required]
     model = Credential
     table_class = CredentialTable
     template_name = 'credentials/credential_list_view.html'
 
 
-class CredentialUploadView(generic.FormView):
+class CredentialUploadView(LoginRequiredMixin, generic.FormView):
     form_class = CredentialUploadForm
     success_url = reverse_lazy('landings:dashboard_view')
     template_name = 'credentials/credential_upload_view.html'
@@ -25,20 +26,20 @@ class CredentialUploadView(generic.FormView):
         return super().form_valid(form, *args, **kwargs)
 
 
-class CredentialCreateView(generic.CreateView):
+class CredentialCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = CredentialForm
     template_name = 'credentials/credential_create_view.html'
     success_url = reverse_lazy('credentials:credential_list_view')
 
 
-class CredentialUpdateView(generic.UpdateView):
+class CredentialUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = CredentialForm
     model = Credential
     template_name = 'credentials/credential_update_view.html'
     success_url = reverse_lazy('credentials:credential_list_view')
 
 
-class CredentialDeleteView(generic.DeleteView):
+class CredentialDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Credential
     template_name = 'credentials/credential_delete_view.html'
     success_url = reverse_lazy('credentials:credential_list_view')
