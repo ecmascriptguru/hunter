@@ -22,11 +22,11 @@ class CredentialListView(LoginRequiredMixin, ExportMixin, SingleTableView):
 class CredentialUploadView(LoginRequiredMixin, generic.FormView):
     decorators = [superadmin_required, ]
     form_class = CredentialUploadForm
-    success_url = reverse_lazy('landings:dashboard_view')
+    success_url = reverse_lazy('credentials:credential_list_view')
     template_name = 'credentials/credential_upload_view.html'
 
     def form_valid(self, form, *args, **kwargs):
-        file = self.request.FILES['file']
+        form.save()
         return super().form_valid(form, *args, **kwargs)
 
 
