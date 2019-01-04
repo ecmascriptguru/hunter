@@ -9,14 +9,14 @@ class CredentialTable(tables.Table):
     """Table to show credentials
     """
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
-    actions = tables.Column(empty_values=(), orderable=False)
+    actions = tables.Column(empty_values=(), orderable=False, exclude_from_export=True)
     actions_template = 'credentials/_credential_table_actions_column.html'
 
     class Meta:
         model = Credential
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ['id', 'created', 'password', 'recovery_email', 'recovery_phone', ]
-        sequence = ['row_number', 'email', 'proxy', 'has_linkedin', 'state']
+        exclude = ['id', 'created', ]
+        sequence = ['row_number', 'email', 'password', 'proxy', 'has_linkedin', 'recovery_email', 'recovery_phone', 'state']
     
     def __init__(self, *args, **kwargs):
         super(CredentialTable, self).__init__(**kwargs)
