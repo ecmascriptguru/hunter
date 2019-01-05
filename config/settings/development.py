@@ -30,7 +30,7 @@ if ENABLE_DEBUG_TOOLBAR:
     ]
 
 
-DEBUG = True
+DEBUG = ENV_JSON.get('DEBUG', True)
 THUMBNAIL_DEBUG = DEBUG
 TEMPLATES[0]['OPTIONS'].update({'debug': DEBUG})
 
@@ -59,6 +59,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ALLOWED_HOSTS = ENV_JSON.get('ALLOWED_HOSTS', [])
+DEBUG
 
 """
 Django Task Queue settings.
