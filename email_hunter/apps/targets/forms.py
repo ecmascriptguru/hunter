@@ -127,10 +127,7 @@ class TargetUpdateForm(forms.ModelForm):
     def save(self, commit=True):
         if self.data['submit'] == 'Validate':
             self.instance.state = TARGET_STATE.pending
-            self.instance.job = Job.objects.create(state=JOB_STATE.pending)
             task = validate_targets.delay([self.instance.pk])
-            self.instance.job.internal_uuid = task.id
-            self.instance.job.save()
         if self.data['submit'] == 'Cancel':
             return self.instance
         else:
