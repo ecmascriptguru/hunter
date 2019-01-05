@@ -17,7 +17,7 @@ class TargetUploadForm(forms.ModelForm):
 
     class Meta:
         model = TargetFile
-        exclude = ('created_by', 'filename', )
+        exclude = ('created_by', 'filename', 'state', )
     
     def __init__(self, *args, **kwargs):
         if kwargs.get('user', None):
@@ -38,7 +38,7 @@ class TargetUploadForm(forms.ModelForm):
         file = self.cleaned_data['file']
         _, msg, rows = parse_target(file, self.cleaned_data['encode_type'])
         if not _:
-            if not self.errors['file']:
+            if not self.errors.get('file'):
                 self.errors['file'] = list()
             self.errors['file'].append(msg)
         else:
@@ -58,7 +58,8 @@ class TargetUploadForm(forms.ModelForm):
                 else:
                     row['domain'] = domain
                     row.pop('Index')
-                    targets.append(row)
+                    if not row in targets:
+                        targets.append(row)
             
             if len(targets) == 0:
                 if not self.errors.get('file', None):
