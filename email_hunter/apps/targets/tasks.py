@@ -18,20 +18,19 @@ def validate_targets(self, targets=[], file_id=None):
     if not Credential.is_available():
         return None, 'Credentials are not available'
     else:
-        # try:
         job = Job.objects.create(internal_uuid=self.request.id, file_id=file_id,
                 state=JOB_STATE.in_progress)
         hunter = Hunter(self, len(targets))
-        
-        for idx, id in enumerate(targets):
-            target = Target.objects.get(pk=id)
-            target.job = job
-            target.save()
+        try:
+            for idx, id in enumerate(targets):
+                    target = Target.objects.get(pk=id)
+                    target.job = job
+                    target.save()
 
-        for idx, id in enumerate(targets):
-            result, _ = hunter.validate(id, idx)
+            for idx, id in enumerate(targets):
+                result, _ = hunter.validate(id, idx)
 
-        return hunter.stop()
-        # except Exception as e:
-        #     print(str(e))
-        #     return False, str(e)
+                return hunter.stop()
+        except Exception as e:
+            print(str(e))
+            return False, str(e)

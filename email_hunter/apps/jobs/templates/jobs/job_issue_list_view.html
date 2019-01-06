@@ -1,0 +1,42 @@
+{% extends "layouts/admin_lte_base.html" %}
+{% load static %}
+
+{% block body %}
+    <section class="content-header">
+        <h1>
+            <i class="fa fa-list"></i>
+            Tasks
+            <small>List view of issues</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+            <li><a href="#"><i class="fa fa-list"></i>Tasks</a></li>
+            <li class="active">Issues</li>
+        </ol>
+    </section>
+    
+    <section class="content">
+        <div class="row">
+            <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2" id="live-view-container">
+                <div id="issues-slider" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for shot in screenshots %}
+                        <div class="item{% if forloop.counter == 1 %} active {% endif %}">
+                            <img class="img-responsive" src="{% static shot %}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a class="carousel-control-prev" href="#issues-slider" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"><i class="fa fa-arrow-left"></i></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#issues-slider" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"><i class="fa fa-arrow-right"></i></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+{% endblock body %}

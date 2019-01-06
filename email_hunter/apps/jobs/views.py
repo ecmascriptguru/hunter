@@ -1,4 +1,6 @@
+import os
 from datetime import timedelta
+from django.conf import settings
 from django.views import generic
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -41,3 +43,15 @@ class JobDetailView(LoginRequiredMixin, generic.UpdateView):
         item = self.get_object()
         params['task'] = validate_targets.AsyncResult(str(item.internal_uuid))
         return params
+
+
+class JobIssueListView(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'jobs/job_issue_list_view.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(JobIssueListView, self).get_context_data(*args, **kwargs)
+        screenshots = list()
+        for img in os.listdir(os.path.join(settings.BASE_DIR, 'static/issues')):
+            screenshots.append(os.path.join('issues', img))
+        context['screenshots'] = screenshots
+        return context

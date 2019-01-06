@@ -2,7 +2,9 @@
 Main lib to check email addresses
 """
 import requests, json, logging, datetime, time
+from os import path
 from sys import platform
+from django.conf import settings
 from ...apps.credentials.models import Credential, CREDENTIAL_STATE
 from ...apps.targets.models import Target, TARGET_STATE, TARGET_FILE_STATE
 from ...apps.jobs.models import Job, JOB_STATE
@@ -39,6 +41,10 @@ class Hunter:
         
         if task and task.request.id:
             self.set_job(task.request.id)
+    
+    def take_screenshot(self):
+        dir = path.join(settings.BASE_DIR, 'static/issues')
+        return self.browser.save_screenshot(path.join(dir, datetime.datetime.now() + '.png'))
 
     def update_task_state(self, state=TASK_STATES.in_progress):
         if self.task:
@@ -51,6 +57,7 @@ class Hunter:
 
         if not self.browser.is_prepared:
             self.update_task_state(state=TASK_STATES.failed)
+            self.take_screenshot()
             raise Exception('Browser is not ready to get started.')
         else:
             self.default_meta['prepare'].update({
