@@ -44,7 +44,7 @@ class Hunter:
     
     def take_screenshot(self):
         dir = path.join(settings.BASE_DIR, 'static/issues')
-        return self.browser.save_screenshot(path.join(dir, datetime.datetime.now() + '.png'))
+        return self.browser.save_screenshot(path.join(dir, str(datetime.datetime.now()) + '.png'))
 
     def update_task_state(self, state=TASK_STATES.in_progress):
         if self.task:
