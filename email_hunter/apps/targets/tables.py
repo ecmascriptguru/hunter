@@ -56,7 +56,7 @@ class TargetFileTable(tables.Table):
         if processed == 0:
             return ''
         else:
-            return "{}/{} Found({:.2f}%)".format(found, processed, found/processed)
+            return "{}/{} Found({:.2f}%)".format(found, processed, found / processed * 100)
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)

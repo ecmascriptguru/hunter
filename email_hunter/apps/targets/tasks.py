@@ -20,6 +20,16 @@ def validate_targets(self, targets=[], file_id=None):
     else:
         job = Job.objects.create(internal_uuid=self.request.id, file_id=file_id,
                 state=JOB_STATE.in_progress)
+        
+        if file_id is not None:
+            try:
+                file = TargetFile.objects.get(internal_uuid=file_id)
+                if file.state != TARGET_FILE_STATE.in_progress:
+                    file.state = TARGET_FILE_STATE.in_progress
+                    file.save()
+            except TargetFile.DoesNotExist:
+                print('File not found.')
+
         hunter = Hunter(self, len(targets))
         try:
             for idx, id in enumerate(targets):
