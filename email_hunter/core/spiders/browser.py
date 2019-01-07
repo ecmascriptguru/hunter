@@ -2,8 +2,9 @@
 User Defined Selenium Browser
 """
 
-import json, datetime, csv, logging, sys, time
+import json, datetime, csv, logging, sys, time, random
 import os, requests, tldextract
+from os import path
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from sys import platform
@@ -20,6 +21,7 @@ class Browser(webdriver.Chrome):
     -  credential: required in constructor
     """
     google_signin_url = 'https://accounts.google.com/signin/v2/identifier?flowName=GlifWebSignIn&flowEntry=ServiceLogin'
+    gplus_success_url = 'https://plus.google.com/people'
     credential_pk = None
     email = None
     password = None
@@ -250,11 +252,62 @@ class Browser(webdriver.Chrome):
             return False
         
         return True
-    
+
     def take_screenshot(self):
         dir = path.join(settings.BASE_DIR, 'static/issues')
         return self.save_screenshot(path.join(dir, str(datetime.datetime.now()) + '.png'))
+    
+    def resolve_google_captcha(self, captcha):
+        recaptcha = self.find_element_by_css_selector('#logincaptcha')
+        if recaptcha is None:
+            return False
+        recaptcha.send_keys(captcha)
         
+        password = self.find_element_by_css_selector('#Passwd')
+        if password is None:
+            return False
+        password.send_keys(self.password)
+
+        el = self.find_element_by_css_selector('#signIn')
+        if el is None:
+            return False
+        el.click()
+        time.sleep(random.uniform(0.5, 1.5))
+        return self.current_url.startswith(self.gplus_success_url)
+
+    def unlock_google_account(self):
+        self.get(self.google_signin_url)
+        time.sleep(1)
+        el = self.find_element_by_css_selector("#identifier-shown input#Email")
+        if el is None:
+            return False
+        el.send_keys(self.email)
+
+        el = self.find_element_by_css_selector('#next')
+        if el is None:
+            return False
+        el.click()
+
+        el = self.find_element_by_css_selector('#Passwd')
+        if el is None:
+            return False
+        el.send_keys(self.password)
+
+        el = self.find_element_by_css_selector('#signIn')
+        if el is None:
+            return False
+        
+        if self.current_url.startswith(self.gplus_success_url):
+            return True
+        else:
+            self.save_current_page()
+            return False
+    
+    def save_current_page(self):
+        dir = path.join(settings.BASE_DIR, 'static/issues')
+        temp = open(path.join(dir, 'index.html'), 'w')
+        temp.write(self.page_source)
+
     def login_gmail(self):
         """
         login to GMail
@@ -271,26 +324,20 @@ class Browser(webdriver.Chrome):
             self._element_find_timer = 0
             el = self.find_element_by_css_selector('#identifierId')
             if el is None:
-                el = self.find_element_by_css_selector("#identifier-shown input#Email")
-                if el is None:
-                    return False
+                return self.unlock_google_account()
             el.send_keys(self.email)
 
             self._element_find_timer = 0
             el = self.find_element_by_id('identifierNext')
             if el is None:
-                el = self.find_element_by_css_selector('#next')
-                if el is None:
-                    return False
+                return self.unlock_google_account()
             el.click()
-            time.sleep(10)
+            time.sleep(5)
 
             self._element_find_timer = 0
             el = self.find_element_by_name('password')
             if el is None:
-                el = self.find_element_by_css_selector('#Passwd')
-                if el is None:
-                    return False
+                return self.unlock_google_account()
             el.send_keys(self.password)
 
             self._element_find_timer = 0

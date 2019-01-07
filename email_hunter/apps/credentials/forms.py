@@ -76,6 +76,7 @@ class CredentialUploadForm(forms.Form):
             credential = Credential.objects.create(**cred)
             if proxy is not None and not hasattr(proxy, 'credential'):
                 credential.proxy = proxy
+                credential.state = CREDENTIAL_STATE.hold
             else:
                 credential.state = CREDENTIAL_STATE.no_proxy
             
