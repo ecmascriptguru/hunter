@@ -19,6 +19,7 @@ class Browser(webdriver.Chrome):
     """Main Browser to be used in validation.
     -  credential: required in constructor
     """
+    google_signin_url = 'https://accounts.google.com/signin/v2/identifier?flowName=GlifWebSignIn&flowEntry=ServiceLogin'
     credential_pk = None
     email = None
     password = None
@@ -171,6 +172,7 @@ class Browser(webdriver.Chrome):
             self._linkedin_login_check_count = 0
         except Exception as e:
             print(str(e))
+            self.take_screenshot()
             return False
         return self.is_logged_into_linkedIn()
 
@@ -244,9 +246,14 @@ class Browser(webdriver.Chrome):
                 return False
         except Exception as e:
             print(str(e))
+            self.take_screenshot()
             return False
         
         return True
+    
+    def take_screenshot(self):
+        dir = path.join(settings.BASE_DIR, 'static/issues')
+        return self.save_screenshot(path.join(dir, str(datetime.datetime.now()) + '.png'))
         
     def login_gmail(self):
         """
@@ -256,33 +263,42 @@ class Browser(webdriver.Chrome):
             raise NotImplementedError('Not implemented.')
 
         print("Logging into Gmail")
-        self.get('https://accounts.google.com/signin/v2/identifier?continue=https%3A%2F%2Fmail.google.com')
+        # self.get('https://accounts.google.com/signin/v2/identifier?continue=https%3A%2F%2Fmail.google.com')
+        self.get(self.google_signin_url)
         time.sleep(1)
         
         try:
             self._element_find_timer = 0
             el = self.find_element_by_css_selector('#identifierId')
             if el is None:
-                return False
+                el = self.find_element_by_css_selector("#identifier-shown input#Email")
+                if el is None
+                    return False
             el.send_keys(self.email)
 
             self._element_find_timer = 0
             el = self.find_element_by_id('identifierNext')
             if el is None:
-                return False
+                el = self.find_element_by_css_selector('#next')
+                if el is None:
+                    return False
             el.click()
             time.sleep(10)
 
             self._element_find_timer = 0
             el = self.find_element_by_name('password')
             if el is None:
-                return False
+                el = self.find_element_by_css_selector('#Passwd')
+                if el is None:
+                    return False
             el.send_keys(self.password)
 
             self._element_find_timer = 0
             el = self.find_element_by_id('passwordNext')
             if el is None:
-                return False
+                el = self.find_element_by_css_selector('#signIn')
+                if el is None:
+                    return False
             el.click()
             time.sleep(10)
 
@@ -292,6 +308,7 @@ class Browser(webdriver.Chrome):
             self._google_login_check_count = 0
         except Exception as e:
             print(str(e))
+            self.take_screenshot()
         finally:
             return self.is_logged_into_gmail()
 

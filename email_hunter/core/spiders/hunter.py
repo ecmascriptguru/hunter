@@ -41,10 +41,6 @@ class Hunter:
         
         if task and task.request.id:
             self.set_job(task.request.id)
-    
-    def take_screenshot(self):
-        dir = path.join(settings.BASE_DIR, 'static/issues')
-        return self.browser.save_screenshot(path.join(dir, str(datetime.datetime.now()) + '.png'))
 
     def update_task_state(self, state=TASK_STATES.in_progress):
         if self.task:
@@ -57,7 +53,7 @@ class Hunter:
 
         if not self.browser.is_prepared:
             self.update_task_state(state=TASK_STATES.failed)
-            self.take_screenshot()
+            self.browser.take_screenshot()
             raise Exception('Browser is not ready to get started.')
         else:
             self.default_meta['prepare'].update({
