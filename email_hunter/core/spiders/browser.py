@@ -272,7 +272,7 @@ class Browser(webdriver.Chrome):
             el = self.find_element_by_css_selector('#identifierId')
             if el is None:
                 el = self.find_element_by_css_selector("#identifier-shown input#Email")
-                if el is None
+                if el is None:
                     return False
             el.send_keys(self.email)
 
