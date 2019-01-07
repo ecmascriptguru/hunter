@@ -1,6 +1,6 @@
 import logging
 from django import forms
-from crispy_forms.layout import Layout, Submit, ButtonHolder, Field, Fieldset, Div
+from crispy_forms.layout import Layout, Submit, ButtonHolder, Field, Fieldset, Div, HTML
 from crispy_forms.helper import FormHelper
 from django_fsm import FSMField
 from .models import Credential, CREDENTIAL_STATE
@@ -57,6 +57,9 @@ class CredentialUploadForm(forms.Form):
                     proxy = row.pop('proxy')
                     [ip, port] = proxy.split(':')
                     row['proxy'] = {'ip_address': ip, 'port': port}
+                    if row.get('recovery_phone') is not None and\
+                        not row['recovery_phone'].startswith('+'):
+                        row['recovery_phone'] = '+' + str(row['recovery_phone'])
                     credentials.append(row)
             
             if len(credentials) == 0:
@@ -86,7 +89,7 @@ class CredentialUploadForm(forms.Form):
 class CredentialForm(forms.ModelForm):
     class Meta:
         model = Credential
-        exclude = ('recovery_email', 'recovery_phone', 'state')
+        exclude = ('recovery_email', 'recovery_phone', 'state', 'captcha_image')
     
     def __init__(self, *args, **kwargs):
         super(CredentialForm, self).__init__(*args, **kwargs)
@@ -108,13 +111,23 @@ class CredentialForm(forms.ModelForm):
             button_holder = ButtonHolder(
                 Submit('submit', 'Submit', css_class="pull-right")
             )
-        self.helper.layout = Layout(
-            Div(BasicBootstrapFormField('proxy'), css_class='form-group'),
-            Div(BasicBootstrapFormField('email'), css_class='form-group'),
-            Div(BasicBootstrapFormField('password'), css_class='form-group'),
-            Field('has_linkedin', template='field_layouts/adminlite/checkbox.html'),
-            button_holder,
-        )
+        if self.instance.captcha_image:
+            self.helper.layout = Layout(
+                Div(HTML('<img src="{}" />'.format(self.instance.captcha_image)), css_class='form-group'),
+                Div(BasicBootstrapFormField('proxy'), css_class='form-group'),
+                Div(BasicBootstrapFormField('email'), css_class='form-group'),
+                Div(BasicBootstrapFormField('password'), css_class='form-group'),
+                Field('has_linkedin', template='field_layouts/adminlite/checkbox.html'),
+                button_holder,
+            )
+        else:
+            self.helper.layout = Layout(
+                Div(BasicBootstrapFormField('proxy'), css_class='form-group'),
+                Div(BasicBootstrapFormField('email'), css_class='form-group'),
+                Div(BasicBootstrapFormField('password'), css_class='form-group'),
+                Field('has_linkedin', template='field_layouts/adminlite/checkbox.html'),
+                button_holder,
+            )
     
     def clean_proxy(self, *args, **kwargs):
         proxy = self.cleaned_data['proxy']
@@ -123,12 +136,14 @@ class CredentialForm(forms.ModelForm):
         return proxy
     
     def save(self, commit=True):
-        if self.instance.proxy:
+        if self.clean_proxy() is None:
+            self.instance.state = CREDENTIAL_STATE.no_proxy
+        elif self.instance.state == CREDENTIAL_STATE.no_proxy:
             self.instance.state = CREDENTIAL_STATE.hold
         
         credential = super(CredentialForm, self).save(commit)
         if self.data['submit'] == 'Activate':
             logger.debug("About to activate a credential {}!".format(self.instance))
-
+            self.instance.state = CREDENTIAL_STATE.processing
             recovery_credential.delay(credential.pk)
         return credential

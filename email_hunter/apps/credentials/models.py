@@ -34,6 +34,8 @@ class Credential(TimeStampedModel):
                             default=settings.DEFAULT_RECOVERY_PHONE)
     has_linkedin = models.BooleanField(default=False)
     state = FSMField(default=CREDENTIAL_STATE.no_proxy, choices=CREDENTIAL_STATE_CHOICES)
+    captcha_image = models.URLField(default=None, blank=True, null=True, verbose_name='Captcha Image')
+    captcha_value = models.CharField(max_length=20, default=None, blank=True, null=True)
 
     class Meta:
         ordering = ['modified', ]

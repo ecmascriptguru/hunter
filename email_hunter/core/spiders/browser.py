@@ -277,7 +277,8 @@ class Browser(webdriver.Chrome):
 
     def unlock_google_account(self):
         self.get(self.google_signin_url)
-        time.sleep(1)
+        time.sleep(random.uniform(0.4, 0.9))
+
         el = self.find_element_by_css_selector("#identifier-shown input#Email")
         if el is None:
             return False
@@ -288,6 +289,7 @@ class Browser(webdriver.Chrome):
             return False
         el.click()
 
+        time.sleep(random.uniform(0.4, 0.9))
         el = self.find_element_by_css_selector('#Passwd')
         if el is None:
             return False
@@ -297,11 +299,22 @@ class Browser(webdriver.Chrome):
         if el is None:
             return False
         
+        time.sleep(random.uniform(0.4, 0.9))
         if self.current_url.startswith(self.gplus_success_url):
             return True
         else:
             self.save_current_page()
-            return False
+            captcha_img = self.find_element_by_css_selector('.captcha-container .captcha-box .captcha-img img')
+            if captcha_img is None:
+                print("Unknown case found.")
+                return False
+            else:
+                image_url = captcha_img.get_attribute('src')
+                # Should do something with this.
+                credential = self.credential
+                credential.captcha_image = image_url
+                credential.save()
+                return False
     
     def save_current_page(self):
         dir = path.join(settings.BASE_DIR, 'static/issues')

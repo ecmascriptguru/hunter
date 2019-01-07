@@ -15,7 +15,7 @@ class CredentialTable(tables.Table):
     class Meta:
         model = Credential
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ['id', 'created', ]
+        exclude = ['id', 'created', 'captcha_image', 'captcha_value', ]
         sequence = ['row_number', 'email', 'password', 'proxy', 'has_linkedin', 'recovery_email', 'recovery_phone', 'state']
     
     def __init__(self, *args, **kwargs):
