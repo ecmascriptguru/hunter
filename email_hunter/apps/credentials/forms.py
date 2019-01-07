@@ -58,7 +58,7 @@ class CredentialUploadForm(forms.Form):
                     [ip, port] = proxy.split(':')
                     row['proxy'] = {'ip_address': ip, 'port': port}
                     if row.get('recovery_phone') is not None and\
-                        not row['recovery_phone'].startswith('+'):
+                        not str(row['recovery_phone']).startswith('+'):
                         row['recovery_phone'] = '+' + str(row['recovery_phone'])
                     credentials.append(row)
             
