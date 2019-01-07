@@ -71,7 +71,7 @@ class Browser(webdriver.Chrome):
 
         # Should be enabled
         if not settings.DEBUG:
-            options.add_argument("--headless")
+            # options.add_argument("--headless")
             
             prefs = {"profile.managed_default_content_settings.images":2}
             options.add_experimental_option("prefs",prefs)
@@ -298,7 +298,8 @@ class Browser(webdriver.Chrome):
         el = self.find_element_by_css_selector('#signIn')
         if el is None:
             return False
-        
+        el.click()
+
         time.sleep(random.uniform(0.4, 0.9))
         if self.current_url.startswith(self.gplus_success_url):
             return True

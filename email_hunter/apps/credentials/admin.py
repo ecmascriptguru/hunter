@@ -5,7 +5,7 @@ from .models import Credential
 
 
 class CrednetialAdmin(admin.ModelAdmin):
-    exclude = ('recovery_email', 'recovery_phone',)
+    exclude = ('captcha_image',)
 
 
 admin.site.register(Credential, CrednetialAdmin)
