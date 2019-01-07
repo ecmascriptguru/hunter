@@ -56,6 +56,22 @@ class TargetFile(TimeStampedModel):
             return qs[:limit]
         else:
             return qs
+    
+    @property
+    def pending_targets(self):
+        return self.targets.filter(state=TARGET_STATE.pending)
+    
+    @property
+    def doing_targets(self):
+        return self.targets.filter(state=TARGET_STATE.in_progress)
+    
+    @property
+    def complete_targets(self):
+        return self.targets.filter(state__in=[TARGET_STATE.validated, TARGET_STATE.failed])
+    
+    @property
+    def validated_targets(self):
+        return self.targets.filter(state=TARGET_STATE.validated)
 
     @property
     def is_ready(self):
