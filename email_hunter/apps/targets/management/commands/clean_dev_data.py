@@ -12,8 +12,8 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise Exception('Projects is not in DEBUG mode.')
+        # if not settings.DEBUG:
+        #     raise Exception('Projects is not in DEBUG mode.')
 
         leads_count, _ = Lead.objects.all().delete()
         targets_count = Target.objects.all().exclude(state=TARGET_STATE.to_do).update(state=TARGET_STATE.to_do)

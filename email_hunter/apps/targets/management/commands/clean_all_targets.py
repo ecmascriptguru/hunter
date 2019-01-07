@@ -12,8 +12,8 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise Exception('Projects is not in DEBUG mode.')
+        # if not settings.DEBUG:
+        #     raise Exception('Projects is not in DEBUG mode.')
 
         count, info = Target.objects.all().delete()
         print("{} targets removed from database.".format(count))

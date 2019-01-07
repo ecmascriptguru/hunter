@@ -30,7 +30,7 @@ def validate_targets(self, targets=[], file_id=None):
             for idx, id in enumerate(targets):
                 result, _ = hunter.validate(id, idx)
 
-                return hunter.stop()
+            return hunter.stop()
         except Exception as e:
             print(str(e))
             return False, str(e)

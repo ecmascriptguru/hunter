@@ -28,9 +28,10 @@ class Hunter:
         }
 
     def __init__(self, task, count, *args, **kwargs):
+        self.default_meta['candidates'].update({ 'total': count })
         task.update_state(state=TASK_STATES.pending, meta=self.default_meta)
         self.task = task
-        self.default_meta['candidates'].update({ 'total': count })
+
         if Credential.is_available():
             cred = Credential.actives().first()
             self.browser = Browser(*args, **kwargs, pk=cred.pk)
