@@ -72,7 +72,6 @@ class Browser(webdriver.Chrome):
         # Should be enabled
         if not settings.DEBUG:
             # options.add_argument("--headless")
-            
             prefs = {"profile.managed_default_content_settings.images":2}
             options.add_experimental_option("prefs",prefs)
 
@@ -183,9 +182,9 @@ class Browser(webdriver.Chrome):
         check if we have successful login
         :return: function don't return anything
         '''
-
+        self.get(self.gplus_success_url)
         while(self._google_login_check_count < 3):
-            if self.current_url.startswith('https://mail.google.com/'):
+            if self.current_url.startswith(self.gplus_success_url):
                 print('Gmail is ready')
                 return True
             else:
@@ -197,7 +196,7 @@ class Browser(webdriver.Chrome):
         return False
     
     def open_gplus(self):
-        self.get('https://plus.google.com/people')
+        self.get(self.gplus_success_url)
 
     def should_verify_google(self):
         return (self.recovery_phone_number_option_text in self.page_source or
@@ -331,7 +330,7 @@ class Browser(webdriver.Chrome):
 
         print("Logging into Gmail")
         # self.get('https://accounts.google.com/signin/v2/identifier?continue=https%3A%2F%2Fmail.google.com')
-        self.get(self.google_signin_url)
+        self.get(self.gplus_success_url)
         time.sleep(1)
         
         try:
