@@ -26,6 +26,9 @@ class TargetTable(tables.Table):
     def render_full_name(self, record):
         return record.full_name
 
+    def render_modified(self, record):
+        return record.modified.strftime('%b %d, %Y')
+
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)
 

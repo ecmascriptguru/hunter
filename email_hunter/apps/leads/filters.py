@@ -1,17 +1,16 @@
 import django_filters
 from django.db import models
-from .models import Target
+from .models import Lead
 
 
-class TargetFilter(django_filters.FilterSet):
+class LeadFilter(django_filters.FilterSet):
     class Meta:
-        model = Target
+        model = Lead
         fields = {
-            'first_name': ['icontains'], 
-            'last_name': ['icontains'], 
-            'domain': ['icontains'],
-            'state': ['exact'],
-            'created_by': ['exact'],
+            'email': ['icontains'], 
+            'target__first_name': ['icontains'],
+            'target__last_name': ['icontains'],
+            'engine': ['exact'],
         }
         filter_overrides = {
             models.CharField: {

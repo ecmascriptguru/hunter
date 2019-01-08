@@ -5,28 +5,26 @@ from .models import Lead
 
 
 class LeadTable(tables.Table):
-    row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
-    actions = tables.Column(empty_values=(), orderable=False)
-    actions_template = 'leads/_lead_table_actions_column.html'
+    row_number = tables.Column(verbose_name='#', orderable=False)
 
     class Meta:
         model = Lead
         template_name = 'django_tables2/bootstrap.html'
         exclude = ('id', 'modified', )
-        sequence = ['row_number', 'email', 'found_by', ]
+        sequence = ['row_number', 'email', 'target', 'engine', 'found_by', ]
 
     def __init__(self, *args, **kwargs):
         super(LeadTable, self).__init__(**kwargs)
         self.counter = itertools.count()
 
-    def render_actions(self, record):
-        return render_to_string(self.actions_template, context={'record': record})
-    
     def render_target(self, record):
         if record.target:
             return record.target.full_name
         else:
             return 'Deleted'
+    
+    def render_created(self, record):
+        return record.created.strftime("%b %d, %Y")
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)
