@@ -14,3 +14,4 @@ class LeadListView(LoginRequiredMixin, SingleTableMixin, ExportMixin, FilterView
     table_class = LeadTable
     filterset_class = LeadFilter
     strict = False
+    export_name = 'leads'

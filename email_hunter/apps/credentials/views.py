@@ -17,6 +17,7 @@ class CredentialListView(LoginRequiredMixin, ExportMixin, SingleTableView):
     table_class = CredentialTable
     template_name = 'credentials/credential_list_view.html'
     exclude_columns = ('modified', 'actions', )
+    export_name = 'credentials'
 
 
 class CredentialUploadView(LoginRequiredMixin, generic.FormView):
