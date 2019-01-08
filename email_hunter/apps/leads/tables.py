@@ -5,7 +5,7 @@ from .models import Lead
 
 
 class LeadTable(tables.Table):
-    row_number = tables.Column(verbose_name='#', orderable=False)
+    row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
 
     class Meta:
         model = Lead
