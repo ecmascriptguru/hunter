@@ -128,7 +128,8 @@ class TargetUpdateForm(forms.ModelForm):
         if self.data['submit'] == 'Validate':
             self.instance.state = TARGET_STATE.pending
             task = validate_targets.delay([self.instance.pk])
-        if self.data['submit'] == 'Cancel':
+            return super(TargetUpdateForm, self).save(commit)
+        elif self.data['submit'] == 'Cancel':
             return self.instance
         else:
             return super(TargetUpdateForm, self).save(commit)

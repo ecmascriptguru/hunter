@@ -5,7 +5,7 @@ import hashlib
 import random
 import requests
 from selenium.webdriver.common.keys import Keys
-from . import TASK_STATES
+from . import TASK_STATES, compute_cur_in_task_meta
 from ...apps.targets.models import TargetFile, Target
 
 
@@ -127,16 +127,15 @@ class GPlusLookup:
         # if not self.create_authorization_hash():
         #     raise ValueError('Failed to create authorization hash')
 
-        for idx, email in enumerate(candidates, start=1):
-            meta['pattern'].update({ 'cur': idx, 'msg': 'Tyring with {}...'.format(email) })
+        for idx, email in enumerate(candidates):
+            meta['pattern'].update(cur=idx, msg='Tyring with {}...'.format(email))
+            meta = compute_cur_in_task_meta(meta)
             task.update_state(state=TASK_STATES.in_progress, meta=meta)
             _, email, profile = self.find_people(email)
-            # _, email, profile = self.validate(email)
+            
             if _:
-                meta['pattern'].update({ 'msg': 'Found email: {}'.format(email) })
+                meta['pattern'].update(msg='Found email: {}'.format(email))
                 task.update_state(state=TASK_STATES.done, meta=meta)
                 return _, email, profile
-            else:
-                # time.sleep(random.uniform())
-                continue
+
         return False, None, None

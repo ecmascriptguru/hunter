@@ -41,5 +41,5 @@ def job_pattern_pecent(job):
 def job_total_percent(job):
     info = get_celery_task_state(job)
     if isinstance(info, dict):
-        return int(info['candidates']['cur'] / max(1, len(job.targets.all())) * 100)
+        return int(info['current'] / max(1, info['total']) * 100)
     return 0

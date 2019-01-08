@@ -12,7 +12,8 @@ from ...apps.leads.models import Lead, LEAD_FOUND_ENGING
 from .browser import Browser
 from .gplus import GPlusLookup
 from .sales_navigator import SalesNavigator
-from . import TASK_STATES
+from . import ( PREPARE_STEP_WEIGHT, PREPARE_STEPS, VALIDATION_STEPS_COUNT, EMAIL_PATTERNS_COUNT,
+    compute_cur_in_task_meta, TASK_STATES )
 
 
 class Hunter:
@@ -21,16 +22,19 @@ class Hunter:
     """
     default_meta = {
             'current': 0, 'total': 1,
-            'prepare': { 'cur': 0, 'total': 1, 'msg': 'Waiting for browser to be initialized...' },
+            'prepare': { 'cur': 0, 'total': PREPARE_STEPS, 'msg': 'Waiting for browser to be initialized...' },
             'candidates': { 'cur': 0, 'total': 1, 'msg': 'Waiting for browser to be prepared...' },
-            'step': { 'cur': 0, 'total': 2, 'msg': '' },
-            'pattern': { 'cur': 0, 'total': 26, 'msg': ''},
+            'step': { 'cur': 0, 'total': VALIDATION_STEPS_COUNT, 'msg': '' },
+            'pattern': { 'cur': 0, 'total': EMAIL_PATTERNS_COUNT, 'msg': ''},
         }
 
     def __init__(self, task, count, *args, **kwargs):
         self.default_meta['candidates'].update({ 'total': count })
-        task.update_state(state=TASK_STATES.pending, meta=self.default_meta)
+        self.default_meta.update(total= PREPARE_STEPS * PREPARE_STEP_WEIGHT +\
+                count * VALIDATION_STEPS_COUNT * EMAIL_PATTERNS_COUNT)
+        
         self.task = task
+        self.update_task_state(state=TASK_STATES.pending)
 
         if Credential.is_available():
             cred = Credential.actives().first()
@@ -46,20 +50,21 @@ class Hunter:
             self.task.update_state(state=TASK_STATES.in_progress, meta=self.default_meta)
 
     def update_task_state(self, state=TASK_STATES.in_progress):
+        self.default_meta = compute_cur_in_task_meta(self.default_meta)
         if self.task:
             self.task.update_state(state=state, meta=self.default_meta)
     
     def prepare(self):
-        if not self.browser.is_prepared:
-            self.update_task_state(state=TASK_STATES.failed)
-            self.browser.take_screenshot()
-            raise Exception('Browser is not ready to get started.')
-        else:
+        if self.browser.is_prepared:
             self.default_meta['prepare'].update({
-                'cur': 1,
+                'cur': 2,
                 'msg': 'Browser is prepared to validate email addresses.'
             })
             self.update_task_state()
+        else:
+            self.update_task_state(state=TASK_STATES.failed)
+            self.browser.take_screenshot()
+            raise Exception('Browser is not ready to get started.')
 
         self.gplus = GPlusLookup(proxy=self.browser.proxy, driver=self.browser)
         self.salesNavigator = SalesNavigator(driver=self.browser)
@@ -82,7 +87,7 @@ class Hunter:
         target = Target.objects.get(pk=target_id)
         target.state = TARGET_STATE.in_progress
         target.save()
-        self.default_meta['candidates'].update({ 'cur': index + 1, 'msg': 'Analyzing {}'.format(target.full_name) })
+        self.default_meta['candidates'].update({ 'cur': index, 'msg': 'Analyzing {}'.format(target.full_name) })
 
         self.first_name = target.first_name
         self.last_name = target.last_name
@@ -91,12 +96,16 @@ class Hunter:
         candidates = self.generate_emails(self.domain, self.first_name, self.last_name)
         found_engine = LEAD_FOUND_ENGING.gplus
         lead = None
-        self.default_meta['step'].update({ 'cur': 1, 'msg': 'Validating {} with Google+ API'.format(target.full_name) })
+        self.default_meta['step'].update(cur=0, msg='Validating {} with Google+ API'.format(target.full_name))
+        self.default_meta['pattern'].update(cur=0)
+        self.update_task_state()
         _, email, info = self.gplus.get_data(candidates, self.task, self.default_meta)
 
         if not _:
             found_engine = LEAD_FOUND_ENGING.linkedin
-            self.default_meta['step'].update({ 'cur': 2, 'msg': 'Validating {} with LinkedIn API'.format(target.full_name) })
+            self.default_meta['step'].update(cur=1, msg='Validating {} with LinkedIn API'.format(target.full_name))
+            self.default_meta['pattern'].update(cur=0)
+            self.update_task_state()
             _, email, info = self.salesNavigator.get_data(candidates, self.task, self.default_meta)
 
         target = Target.objects.get(pk=target_id)
