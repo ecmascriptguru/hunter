@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'celery',
     'fieldsignals',
+    'django_filters',
+    'bootstrap4',
 ]
 
 INSTALLED_APPS += [
@@ -141,6 +143,8 @@ STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'static'), )
 AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = ('email_hunter.core.backends.CaseInsensitiveModelBackend', )
 LOGIN_REDIRECT_URL = reverse_lazy('landings:dashboard_view')
+LOGIN_URL = reverse_lazy('login')
+LOGOUT_REDIRECT_URL = LOGIN_URL
 
 
 """

@@ -4,16 +4,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import generic
 from django_tables2.views import SingleTableMixin
+from django_filters.views import FilterView
 from .models import Target, TargetFile
 from .forms import TargetUploadForm, TargetUpdateForm, TargetFileForm
 from .tables import TargetTable, TargetFileTable
+from .filters import TargetFilter
 
 
-class TargetListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
-    decorators = [login_required]
+class TargetListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     model = Target
     template_name = 'targets/target_list_view.html'
     table_class = TargetTable
+    filterset_class = TargetFilter
+    strict = False
 
 
 class FileListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
@@ -32,7 +35,7 @@ class FileUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 
 class FileDetailView(LoginRequiredMixin, generic.DetailView):
-    template_name = 'targets/target_file_detail_view'
+    template_name = 'targets/target_file_detail_view.html'
 
     def get_object(self):
         return TargetFile.objects.get(pk=self.kwargs.get('pk'))

@@ -1,0 +1,49 @@
+{% extends "layouts/admin_lte_base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+    <section class="content-header">
+        <h1>
+            <i class="glyphicon glyphicon-hdd"></i>
+            Targets
+            <small>Manage target</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+            <li><a href="{% url 'targets:target_list_view' %}"><i class="glyphicon glyphicon-hdd"></i>Targets</a></li>
+            <li class="active">Update</li>
+        </ol>
+    </section>
+    
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        File Detail
+                    </div>
+                    <div class="box-body">
+                        <div class="form-group">
+                            Processed : {{ object.complete_targets|length }}
+                        </div>
+                        <div class="form-group">
+                            Found : {{ object.validated_targets|length }}
+                        </div>
+                        <div class="form-group">
+                            Todos : {{ object.todos.all|length }}
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <div class="form-group">
+                            <a class="btn btn-default" href="{% url 'targets:target_file_list_view' %}">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+{% endblock body %}

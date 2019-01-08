@@ -19,3 +19,7 @@ class Job(TimeStampedModel):
     state = FSMField(default=JOB_STATE.default, choices=JOB_STATE_CHOICES)
     file = models.ForeignKey('targets.TargetFile', on_delete=models.CASCADE, related_name='jobs',
                 default=None, null=True, blank=True)
+    
+    @staticmethod
+    def completed_jobs(cls):
+        cls.objects.filter(state__in=[JOB_STATE.completed, JOB_STATE.got_error])

@@ -24,7 +24,7 @@ class JobListView(LoginRequiredMixin, SingleTableMixin, generic.ListView):
         if self.request.is_ajax():
             self.template_name = self.ajax_template_name
         return qs.exclude(state=JOB_STATE.archived)\
-                .exclude(state=JOB_STATE.completed, modified__lt=offset)
+                .exclude(state__in=[JOB_STATE.completed, JOB_STATE.got_error], modified__lt=offset)
 
 
 class JobDetailView(LoginRequiredMixin, generic.UpdateView):

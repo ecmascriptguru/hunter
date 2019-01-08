@@ -30,8 +30,9 @@ def validate_targets(self, targets=[], file_id=None):
             except TargetFile.DoesNotExist:
                 print('File not found.')
 
+        hunter = Hunter(self, len(targets))
         try:
-            hunter = Hunter(self, len(targets))
+            hunter.prepare()
             for idx, id in enumerate(targets):
                     target = Target.objects.get(pk=id)
                     target.job = job

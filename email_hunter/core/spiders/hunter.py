@@ -41,17 +41,15 @@ class Hunter:
             raise ValueError('Credential is not available.')
         
         if task and task.request.id:
-            self.set_job(task.request.id)
+            self.job = Job.objects.get(internal_uuid=task.request.id)
+            self.set_job_state(state=JOB_STATE.in_progress)
+            self.task.update_state(state=TASK_STATES.in_progress, meta=self.default_meta)
 
     def update_task_state(self, state=TASK_STATES.in_progress):
         if self.task:
             self.task.update_state(state=state, meta=self.default_meta)
     
-    def set_job(self, job_uuid):
-        self.job = Job.objects.get(internal_uuid=job_uuid)
-        self.set_job_state(state=JOB_STATE.in_progress)
-        self.task.update_state(state=TASK_STATES.in_progress, meta=self.default_meta)
-
+    def prepare(self, job_uuid):
         if not self.browser.is_prepared:
             self.update_task_state(state=TASK_STATES.failed)
             self.browser.take_screenshot()
