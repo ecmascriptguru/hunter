@@ -123,7 +123,7 @@ class Browser(webdriver.Chrome):
             if el is None:
                 return False
             el.click()
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
 
         while(self._linkedin_login_check_count < 3):
             if self.current_url == "https://www.linkedin.com/feed/" or self.current_url == 'https://www.linkedin.com/hp/':
@@ -135,7 +135,7 @@ class Browser(webdriver.Chrome):
             else:
                 print("Keeping wait for browser to log into linkedIn...({0})".format(self._linkedin_login_check_count))
                 self._linkedin_login_check_count += 1
-                time.sleep(2)
+                time.sleep(random.uniform(0.5, 1))
 
         print('Something went wrong with LinkedIn')
         return False
@@ -149,7 +149,7 @@ class Browser(webdriver.Chrome):
 
         print("Login to LinkedIn...")
         self.get('https://www.linkedin.com/')
-        time.sleep(1)
+        time.sleep(random.uniform(0.5, 1))
 
         try:
             self._element_find_timer = 0
@@ -168,7 +168,7 @@ class Browser(webdriver.Chrome):
             self.find_element_by_css_selector('#login-submit').click()
             if el is None:
                 return False
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
 
             self._linkedin_login_check_count = 0
         except Exception as e:
@@ -190,7 +190,7 @@ class Browser(webdriver.Chrome):
             else:
                 print("Keeping wait for browser to log into google...({0})".format(self._google_login_check_count))
                 self._google_login_check_count += 1
-                time.sleep(2)
+                time.sleep(random.uniform(0.5, 1))
 
         print('Something went wrong with gmail')
         return False
@@ -221,7 +221,7 @@ class Browser(webdriver.Chrome):
                 # Should do something in this case...
                 return False
 
-            time.sleep(10)
+            time.sleep(random.uniform(2.5, 4))
             
             if found == 'email':
                 email_box = self.find_element_by_id('identifierId')
@@ -236,7 +236,7 @@ class Browser(webdriver.Chrome):
             next_button = action_buttons[0]
             try_another_button = action_buttons[1]
             next_button.click()
-            time.sleep(3)
+            time.sleep(random.uniform(0.5, 1))
 
             if self.email in self.page_source and self.recovery_email in self.page_source:
                 done_button = self.find_elements_by_css_selector('span.RveJvd.snByac')[1]
@@ -345,7 +345,7 @@ class Browser(webdriver.Chrome):
             if el is None:
                 return self.unlock_google_account()
             el.click()
-            time.sleep(5)
+            time.sleep(random.uniform(3.5, 5))
 
             self._element_find_timer = 0
             el = self.find_element_by_name('password')
@@ -360,7 +360,7 @@ class Browser(webdriver.Chrome):
                 if el is None:
                     return False
             el.click()
-            time.sleep(10)
+            time.sleep(random.uniform(3.5, 5))
 
             if self.should_verify_google():
                 self.verify_google_account_with_recovery_info()
@@ -395,7 +395,7 @@ class Browser(webdriver.Chrome):
             return super(Browser, self).find_element_by_css_selector(selector)
         except Exception as e:
             print(str(e), self._element_find_timer)
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
             self._element_find_timer += 1
             if self._element_find_timer < 10:
                 return self.find_element_by_css_selector(selector)
@@ -407,7 +407,7 @@ class Browser(webdriver.Chrome):
             return super(Browser, self).find_elements_by_css_selector(selector)
         except Exception as e:
             print(str(e), self._element_find_timer)
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
             self._element_find_timer += 1
             if self._element_find_timer < 10:
                 return self.find_elements_by_css_selector(selector)
@@ -419,7 +419,7 @@ class Browser(webdriver.Chrome):
             return super(Browser, self).find_element_by_id(selector)
         except Exception as e:
             print(str(e), self._element_find_timer)
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
             self._element_find_timer += 1
             if self._element_find_timer < 10:
                 return self.find_element_by_id(selector)
@@ -431,7 +431,7 @@ class Browser(webdriver.Chrome):
             return super(Browser, self).find_element_by_name(selector)
         except Exception as e:
             print(str(e), self._element_find_timer)
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
             self._element_find_timer += 1
             if self._element_find_timer < 10:
                 return self.find_element_by_name(selector)
@@ -443,7 +443,7 @@ class Browser(webdriver.Chrome):
             return super(Browser, self).find_element_by_class_name(selector)
         except Exception as e:
             print(str(e), self._element_find_timer)
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
             self._element_find_timer += 1
             if self._element_find_timer < 10:
                 return self.find_element_by_class_name(selector)
@@ -455,7 +455,7 @@ class Browser(webdriver.Chrome):
             return super(Browser, self).find_elements_by_class_name(selector)
         except Exception as e:
             print(str(e), self._element_find_timer)
-            time.sleep(2)
+            time.sleep(random.uniform(0.5, 1))
             self._element_find_timer += 1
             if self._element_find_timer < 10:
                 return self.find_elements_by_class_name(selector)

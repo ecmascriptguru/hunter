@@ -11,7 +11,7 @@ class SalesNavigator:
         self.driver = kwargs.pop('driver')
     
     def validate(self, email):
-        time.sleep(random.uniform(3.1, 5.2))
+        time.sleep(random.uniform(0.5, 2))
         self.driver.get('https://www.linkedin.com/sales/gmail/profile/viewByEmail/' + email)
         if 'https://www.linkedin.com/sales/gmail/profile/proxy/' + email in self.driver.page_source:
             profile = self.driver.find_element_by_tag_name('a').get_attribute('href')

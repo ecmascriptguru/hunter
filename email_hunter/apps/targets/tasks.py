@@ -30,8 +30,8 @@ def validate_targets(self, targets=[], file_id=None):
             except TargetFile.DoesNotExist:
                 print('File not found.')
 
-        hunter = Hunter(self, len(targets))
         try:
+            hunter = Hunter(self, len(targets))
             for idx, id in enumerate(targets):
                     target = Target.objects.get(pk=id)
                     target.job = job
@@ -43,4 +43,9 @@ def validate_targets(self, targets=[], file_id=None):
             return hunter.stop()
         except Exception as e:
             print(str(e))
-            return False, str(e)
+            for idx, id in enumerate(targets):
+                target = Target.objects.get(pk=id)
+                if target.state in [TARGET_STATE.pending, TARGET_STATE.in_progress]:
+                    target.state = TARGET_STATE.has_error
+                    target.save()
+            return hunter.stop(job_state=JOB_STATE.got_error)
