@@ -49,7 +49,7 @@ class Hunter:
         if self.task:
             self.task.update_state(state=state, meta=self.default_meta)
     
-    def prepare(self, job_uuid):
+    def prepare(self):
         if not self.browser.is_prepared:
             self.update_task_state(state=TASK_STATES.failed)
             self.browser.take_screenshot()
