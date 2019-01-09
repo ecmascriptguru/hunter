@@ -7,21 +7,27 @@ from django.utils import timezone
 from django.utils.encoding import force_text
 import logging
 from ...apps.credentials.models import CREDENTIAL_STATE
+from ...core.spiders.browser import Browser
+
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task
-def recovery_credential(credential_pk):
-    from ...core.spiders.browser import Browser
+def recovery_credential(credential_pk):    
     b = Browser(pk=credential_pk)
-    result = b.recovery_account()
-    if result:
-        state = CREDENTIAL_STATE.active
-    else:
-        state = CREDENTIAL_STATE.hold
-    b.quit(state=state)
-    return result
+    state = CREDENTIAL_STATE.hold
+    try:
+        result = b.recovery_account()
+        if result:
+            state = CREDENTIAL_STATE.active
+        else:
+            state = CREDENTIAL_STATE.hold
+    except Exception as e:
+        print(str(e))
+    finally:
+        b.quit(state=state)
+    return state
 
 
 @shared_task

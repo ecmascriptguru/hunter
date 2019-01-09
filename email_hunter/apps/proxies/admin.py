@@ -7,6 +7,7 @@ from .models import Proxy
 
 
 class ProxyAdmin(admin.ModelAdmin):
+    list_display = ('ip_address', 'port', 'state', )
     upload_template = 'proxies/admin/upload.html'
 
     def get_urls(self):
