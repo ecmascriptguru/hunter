@@ -10,6 +10,7 @@ class LeadFilter(django_filters.FilterSet):
             'email': ['icontains'], 
             'target__first_name': ['icontains'],
             'target__last_name': ['icontains'],
+            'target__file': ['exact'],
             'engine': ['exact'],
         }
         filter_overrides = {

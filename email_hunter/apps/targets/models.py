@@ -57,6 +57,9 @@ class TargetFile(TimeStampedModel):
         else:
             return qs
     
+    def __str__(self):
+        return self.filename
+    
     @property
     def pending_targets(self):
         return self.targets.filter(state=TARGET_STATE.pending)
@@ -118,3 +121,6 @@ class Target(TimeStampedModel):
     @classmethod
     def todos(cls):
         return cls.objects.filter(state__in=[TARGET_STATE.to_do, TARGET_STATE.has_error])
+    
+    def __str__(self):
+        return "{} {}({})".format(self.first_name, self.last_name, self.domain)
