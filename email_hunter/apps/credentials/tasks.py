@@ -5,6 +5,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import force_text
+from django.core.mail import mail_admins
 import logging
 from ...apps.credentials.models import CREDENTIAL_STATE
 from ...core.spiders.browser import Browser
@@ -31,5 +32,13 @@ def recovery_credential(credential_pk):
 
 
 @shared_task
-def debug_task():
-    logger.error("In celery task!")
+def send_mail_to_admins(subject, text_template, context, html_template=None):
+    """Send mail to site admins
+    - subject : string (required)
+    - text_template : *.txt template file name (required)
+    """
+    message = render_to_string(text_template, context=context)
+    html_message = None
+    if html_template is not None and context is not None:
+        html_message = render_to_string(html_template, context=context)
+    mail_admins(subject, message, html_message)

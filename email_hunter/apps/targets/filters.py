@@ -11,6 +11,7 @@ class TargetFilter(django_filters.FilterSet):
             'last_name': ['icontains'], 
             'domain': ['icontains'],
             'state': ['exact'],
+            'file': ['exact'],
             'created_by': ['exact'],
         }
         filter_overrides = {

@@ -94,7 +94,7 @@ class Browser(webdriver.Chrome):
 
         self.email = credential.email
         self.password = credential.password
-        self.proxy = credential.proxy.to_json
+        self.proxy = credential.proxy.to_json()
         self.credential_pk = credential.pk
         self.recovery_email = credential.recovery_email
         self.recovery_phone = credential.recovery_phone

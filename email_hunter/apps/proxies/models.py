@@ -59,7 +59,6 @@ class Proxy(TimeStampedModel):
     def get_active(cls):
         return cls.actives().first()
     
-    @property
     def to_json(self):
         return {
             "address": str(self),
