@@ -6,9 +6,11 @@ from django.views import generic
 from django_tables2.views import SingleTableMixin, SingleTableView
 from django_tables2.export.views import ExportMixin
 from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets
 from ...apps.users.mixins import superadmin_required
 from .tables import CredentialTable, Credential
 from .forms import CredentialUploadForm, CredentialForm
+from .serializers import CredentialSerializer
 
 
 class CredentialListView(LoginRequiredMixin, ExportMixin, SingleTableView):
@@ -51,3 +53,8 @@ class CredentialDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Credential
     template_name = 'credentials/credential_delete_view.html'
     success_url = reverse_lazy('credentials:credential_list_view')
+
+
+class CredentialViewSet(viewsets.ModelViewSet):
+    queryset = Credential.holds()
+    serializer_class = CredentialSerializer

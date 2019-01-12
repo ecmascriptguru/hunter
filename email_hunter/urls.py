@@ -1,3 +1,4 @@
+from django.conf.urls import url
 from django.urls import path, include
 
 urlpatterns = [
@@ -12,4 +13,9 @@ urlpatterns = [
     path('st/leads/', include(('email_hunter.apps.leads.urls', 'email_hunter.apps.leads'),
         namespace='leads')),
     path('', include(('email_hunter.apps.users.urls', 'email_hunter.apps.users'), namespace='landings')),
+    path('api/', include(('email_hunter.apps.credentials.urls_api', 'email_hunter.apps.credentials'),
+                                                namespace='credentials_api')),
+    path('api/', include(('email_hunter.apps.proxies.urls_api', 'email_hunter.apps.proxies'),
+                                                namespace='proxies_api')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

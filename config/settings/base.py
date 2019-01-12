@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'fieldsignals',
     'django_filters',
     'bootstrap4',
+    'rest_framework',
 ]
 
 INSTALLED_APPS += [
