@@ -147,3 +147,26 @@ class CredentialForm(forms.ModelForm):
             self.instance.state = CREDENTIAL_STATE.processing
             recovery_credential.delay(credential.pk)
         return credential
+
+
+class CredentialReactivateForm(forms.ModelForm):
+    class Meta:
+        model = Credential
+        fields = []
+    
+    def __init__(self, *args, **kwargs):
+        super(CredentialReactivateForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        
+        self.helper.layout = Layout(
+            ButtonHolder(
+                Submit('submit', 'Activated', css_class="btn-success pull-right"),
+                Submit('submit', 'Failed', css_class="pull-left btn-secondary")
+            ),
+        )
+
+    def save(self, commit=True):
+        if self.data['submit'] == 'Activated':
+            self.instance.state = CREDENTIAL_STATE.active
+        return super(CredentialReactivateForm, self).save(commit)

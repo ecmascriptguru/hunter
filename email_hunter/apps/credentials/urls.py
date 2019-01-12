@@ -6,5 +6,6 @@ urlpatterns = [
     path('upload', views.CredentialUploadView.as_view(), name='credential_upload_view'),
     path('new', views.CredentialCreateView.as_view(), name='credential_create_view'),
     path('<pk>', views.CredentialUpdateView.as_view(), name='credential_update_view'),
+    path('<pk>/reactivate', views.CredentialReactivateView.as_view(), name='credential_reactivate_view'),
     path('<pk>/delete', views.CredentialDeleteView.as_view(), name='credential_delete_view'),
 ]
