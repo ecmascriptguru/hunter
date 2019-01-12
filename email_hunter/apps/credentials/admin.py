@@ -6,6 +6,7 @@ from .models import Credential
 
 class CrednetialAdmin(admin.ModelAdmin):
     exclude = ('captcha_image',)
+    list_display = ('email', 'state', )
 
 
 admin.site.register(Credential, CrednetialAdmin)

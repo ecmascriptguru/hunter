@@ -79,6 +79,7 @@ class Credential(TimeStampedModel):
     
     def to_json(self, with_proxy=False):
         result = {
+            'pk': self.pk,
             'email': self.email,
             'password': self.password
         }
