@@ -8,19 +8,26 @@ Please follow the instructions carefully.
 ### Download Script
 In order to reactivate a credential blocked by Google or LinkedIn, you need to download a python script. When you are ready to go, click [`here`]({% static 'tools/activator.zip' %}) to download now and extract a specific path and cd.
 ```shell
-you@machine:script/path$
+you@machine:activator/path$
 ```
 
 ### Virtual Env Configuration
 In order to execute the script, please prepare a specific virtuen env. Suppose that you've created a virtual env named **activator**. Then you will see the following prefix in your shell.
 ```shell
-(activator)you@machine:script/path$
+(activator)you@machine:activator/path$
 ```
 
 ### Dependency Installation
 Now, you are ready to install python packages.
 ```shell
 pip install -r requirements.txt
+```
+
+### chromedriver execute permission
+The python script will execute a chromedriver compitable/executable on your operating system.
+```shell
+cd activator/path
+sudo chmod +x chromedriver*
 ```
 
 ## Reactivating Credential
