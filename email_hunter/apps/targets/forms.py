@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.validators import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, ButtonHolder, Submit, Div, HTML
+from celery.task.control import revoke
 from ...core.widgets.fields import BasicBootstrapFormField
 from ...core.utils.parsers import parse_target
 from ...apps.jobs.models import Job, JOB_STATE
@@ -198,8 +199,12 @@ class TargetFileForm(forms.ModelForm):
                 task = validate_targets.delay([target.pk for target in todos], self.instance.internal_uuid)
                 todos = self.instance.todos(limit)
         elif self.data['submit'] == 'Stop':
-            self.instance.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress]).\
-                    update(state=JOB_STATE.completed)
+            for job in self.instance.jobs_in_queue:
+                revoke(job.id, terminate=True)
+                job.targets.filter(state__in=[TARGET_STATE.pending, TARGET_STATE.in_progress,
+                    TARGET_STATE.has_error]).update(state=TARGET_STATE.to_do)
+                if job.state == JOB_STATE.pending:
+                    job.delete()
             self.instance.state = TARGET_FILE_STATE.done
         
         return super(TargetFileForm, self).save(commit)

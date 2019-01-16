@@ -88,6 +88,10 @@ class TargetFile(TimeStampedModel):
     def has_pending_or_in_progress_jobs(self):
         return len(self.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress])) > 0
     
+    @property
+    def jobs_in_queue(self):
+        return self.jobs.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress])
+    
     @classmethod
     def availables(cls):
         return cls.objects.filter(state__in=[TARGET_FILE_STATE.default, TARGET_FILE_STATE.done])

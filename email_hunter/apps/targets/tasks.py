@@ -4,6 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import force_text
+from billiard.exceptions import Terminated
 import logging, time
 from ...apps.credentials.models import Credential, CREDENTIAL_STATE
 from ...apps.targets.models import Target, TargetFile, TARGET_STATE, TARGET_FILE_STATE
@@ -12,6 +13,16 @@ from ...core.spiders.hunter import Hunter
 
 
 logger = logging.getLogger(__name__)
+
+
+@shared_task(bind=True)
+def infinit_task(self, param):
+    try:
+        while True:
+            print("TRIGERRED... {}".format(param))
+            time.sleep(5)
+    except Terminated:
+        print("Terminated...{}".format(param))
 
 @shared_task(bind=True)
 def validate_targets(self, targets=[], file_id=None):

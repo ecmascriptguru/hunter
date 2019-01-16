@@ -39,6 +39,8 @@ class Credential(TimeStampedModel):
 
     block_notification_email_plain_text_template_name = 'credentials/mails/credential_block_notification.txt'
     block_notification_email_html_template_name = 'credentials/mails/credential_block_notification.html'
+    reactivate_notification_email_plain_text_template_name = 'credentials/mails/credential_reactivate_notification.txt'
+    reactivate_notification_email_html_template_name = 'credentials/mails/credential_reactivate_notification.html'
 
     class Meta:
         ordering = ['modified', ]
