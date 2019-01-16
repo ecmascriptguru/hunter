@@ -192,19 +192,32 @@ class TargetFileForm(forms.ModelForm):
 
             while len(todos) > 0:
                 # Create a job without any internal_uuid for task uuid
+                job = Job.objects.create(file_id=self.instance.internal_uuid, state=JOB_STATE.pending)
                 for todo in todos:
                     todo.state = TARGET_STATE.pending
+                    todo.job = job
                     todo.save()
 
                 task = validate_targets.delay([target.pk for target in todos], self.instance.internal_uuid)
+                job.internal_uuid = task.id
+                job.save()
                 todos = self.instance.todos(limit)
         elif self.data['submit'] == 'Stop':
-            for job in self.instance.jobs_in_queue:
-                revoke(job.id, terminate=True)
+            pendings = self.instance.jobs.filter(state=JOB_STATE.pending)
+            doings = self.instance.jobs.filter(state=JOB_STATE.in_progress)
+
+            for job in pendings:
+                revoke(job.internal_uuid, terminate=True)
                 job.targets.filter(state__in=[TARGET_STATE.pending, TARGET_STATE.in_progress,
                     TARGET_STATE.has_error]).update(state=TARGET_STATE.to_do)
-                if job.state == JOB_STATE.pending:
-                    job.delete()
+                job.delete()
+            
+            # for job in doings:
+            #     revoke(job.internal_uuid, terminate=True,)
+            #     job.targets.filter(state__in=[TARGET_STATE.pending, TARGET_STATE.in_progress,
+            #         TARGET_STATE.has_error]).update(state=TARGET_STATE.to_do)
+            #     job.state = JOB_STATE.completed
+            #     job.save()
             self.instance.state = TARGET_FILE_STATE.done
         
         return super(TargetFileForm, self).save(commit)

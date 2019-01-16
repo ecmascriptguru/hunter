@@ -20,6 +20,10 @@ class Job(TimeStampedModel):
     file = models.ForeignKey('targets.TargetFile', on_delete=models.CASCADE, related_name='jobs',
                 default=None, null=True, blank=True)
     
-    @staticmethod
+    @classmethod
     def completed_jobs(cls):
         cls.objects.filter(state__in=[JOB_STATE.completed, JOB_STATE.got_error])
+    
+    @classmethod
+    def incomplete_jobs(cls):
+        return cls.objects.filter(state__in=[JOB_STATE.pending, JOB_STATE.in_progress])
