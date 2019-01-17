@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.utils.text import Truncator
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
 from ...apps.jobs import JOB_STATE
@@ -58,7 +59,7 @@ class TargetFile(TimeStampedModel):
             return qs
     
     def __str__(self):
-        return self.filename
+        return Truncator(self.filename).chars(24)
     
     @property
     def pending_targets(self):
