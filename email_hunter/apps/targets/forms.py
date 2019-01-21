@@ -45,7 +45,7 @@ class TargetUploadForm(forms.ModelForm):
         else:
             targets = list()
             for row in rows:
-                extract = tldextract.extract(row.pop("url"))
+                extract = tldextract.extract(row.get("url"))
                 if extract.suffix == "":
                     continue
 
@@ -55,7 +55,11 @@ class TargetUploadForm(forms.ModelForm):
 
                 if Target.objects.filter(first_name=first_name, 
                     last_name=last_name, domain=domain).exists():
-                    continue
+                    target = Target.objects.filter(first_name=first_name, 
+                            last_name=last_name, domain=domain).first()
+                    if target.url is None:
+                        target.url = row.get('url')
+                        target.save()
                 else:
                     row['domain'] = domain
                     row.pop('Index')

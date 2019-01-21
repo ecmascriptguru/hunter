@@ -112,6 +112,7 @@ class Target(TimeStampedModel):
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
     domain = models.CharField(max_length=60)
+    url = models.URLField(default=None, null=True, blank=True)
     state = FSMField(default=TARGET_STATE.to_do, choices=TARGET_STATE_CHOICES)
     created_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='targets')
     job = models.ForeignKey('jobs.Job', on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name='targets')

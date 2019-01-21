@@ -13,7 +13,7 @@ class TargetTable(tables.Table):
     class Meta:
         model = Target
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('file', 'id', 'created', 'job', 'first_name', 'last_name', )
+        exclude = ('file', 'id', 'created', 'job', 'first_name', 'last_name', 'url', )
         sequence = ['row_number', 'full_name', 'domain', 'state', 'created_by', ]
 
     def __init__(self, *args, **kwargs):

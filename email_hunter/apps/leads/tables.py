@@ -6,6 +6,7 @@ from .models import Lead
 
 class LeadTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
+    url = tables.Column(empty_values=(), verbose_name='Url', orderable=False)
 
     class Meta:
         model = Lead
@@ -22,6 +23,9 @@ class LeadTable(tables.Table):
             return record.target.full_name
         else:
             return 'Deleted'
+    
+    def render_url(self, record):
+        return record.target.url
     
     def render_created(self, record):
         return record.created.strftime("%b %d, %Y")
