@@ -55,6 +55,7 @@ INSTALLED_APPS += [
     'email_hunter.apps.targets',
     'email_hunter.apps.jobs',
     'email_hunter.apps.leads',
+    'email_hunter.apps.articles',
 ]
 
 MIDDLEWARE = [
