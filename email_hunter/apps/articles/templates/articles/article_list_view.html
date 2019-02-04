@@ -25,8 +25,8 @@
                 <form action="" method="get" class="form form-inline">
                     {% bootstrap_form filter.form layout='inline' %}
                     {% bootstrap_button 'filter' %}
-                    <a class="btn btn-default pull-right" href="{% export_url 'csv' %}">
-                        <i class="fa fa-download" title="Download Leads"></i>
+                    <a class="btn btn-default pull-right" href="{% url 'articles:article_upload_view' %}">
+                        <i class="fa fa-upload" title="Download Leads"></i>
                     </a>
                 </form>
                 {% endif %}

@@ -10,7 +10,7 @@ class ArticleTable(tables.Table):
     class Meta:
         model = Article
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('id', 'modified', 'created', )
+        exclude = ('id', 'modified', 'created', 'authors', )
         sequence = ['row_number', 'url', 'state' ]
 
     def __init__(self, *args, **kwargs):
@@ -22,9 +22,6 @@ class ArticleTable(tables.Table):
             return record.target.full_name
         else:
             return 'Deleted'
-    
-    def render_url(self, record):
-        return record.target.url
     
     def render_created(self, record):
         return record.created.strftime("%b %d, %Y")

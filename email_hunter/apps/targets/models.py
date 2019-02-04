@@ -4,12 +4,7 @@ from django.utils.text import Truncator
 from model_utils.models import TimeStampedModel
 from django_fsm import FSMField
 from ...apps.jobs import JOB_STATE
-
-
-class ENCODE_TYPE:
-    unicode = 'utf-8'
-    latin1 = 'latin-1'
-    cp1252 = 'cp1252'
+from . import ENCODE_TYPE
 
 
 class TARGET_STATE:
