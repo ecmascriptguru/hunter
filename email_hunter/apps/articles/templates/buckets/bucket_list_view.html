@@ -8,13 +8,12 @@
     <section class="content-header">
         <h1>
             <i class="fa fa-user"></i>
-            Articles
-            <small>List view of articles</small>
+            Buckets
+            <small>List view of buckets</small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
-            <li><a href="{% url 'articles:bucket_list_view' %}"><i class="fa fa-bucket"></i>Buckets</a></li>
-            <li><a href="#"><i class="fa fa-user"></i>Articles</a></li>
+            <li><a href="#"><i class="fa fa-user"></i>Buckets</a></li>
             <li class="active">List</li>
         </ol>
     </section>
@@ -26,9 +25,6 @@
                 <form action="" method="get" class="form form-inline">
                     {% bootstrap_form filter.form layout='inline' %}
                     {% bootstrap_button 'filter' 'submit' %}
-                    <a class="btn btn-default pull-right" href="{% url 'articles:article_upload_view' %}">
-                        <i class="fa fa-upload" title="Upload URLs"></i>
-                    </a>
                 </form>
                 {% endif %}
             </div>

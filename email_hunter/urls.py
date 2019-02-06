@@ -12,7 +12,7 @@ urlpatterns = [
         namespace='targets')),
     path('st/leads/', include(('email_hunter.apps.leads.urls', 'email_hunter.apps.leads'),
         namespace='leads')),
-    path('rs/articles/', include(('email_hunter.apps.articles.urls', 'email_hunter.apps.articles'),
+    path('rs/', include(('email_hunter.apps.articles.urls', 'email_hunter.apps.articles'),
         namespace='articles')),
     path('', include(('email_hunter.apps.users.urls', 'email_hunter.apps.users'), namespace='landings')),
     path('api/', include(('email_hunter.apps.credentials.urls_api', 'email_hunter.apps.credentials'),
