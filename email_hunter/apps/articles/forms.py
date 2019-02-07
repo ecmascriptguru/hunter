@@ -83,15 +83,26 @@ class ArticleUploadForm(forms.ModelForm):
 
     def clean_file(self):
         file = self.cleaned_data['file']
-        _, msg, rows = parse_urls(file, encoding=self.data['encode_type'])
-        for row in rows:
-            if not Article.objects.filter(url=row.get('url')).exists():
-                self.rows.append(Article(url=row.get('url'), authors=[], bucket=self.instance))
-            else:
-                continue
+        self.rows = []
+        _, msg, rows = parse_urls(file, encoding=self.data['encode_type'],
+                is_test_data=self.cleaned_data['is_test_data'])
         
-        if len(self.rows) == 0:
-            raise ValidationError('This File doesn\'t have any new URL.')
+        if not _:
+            raise ValidationError(msg)
+        else:
+            for row in rows:
+                if not Article.objects.filter(url=row.get('url')).exists():
+                    if self.cleaned_data['is_test_data']:
+                        self.rows.append(Article(url=row.get('url'), authors={
+                            'origin': ' '.join([str(row.get('first_name')), str(row.get('last_name'))]).strip()
+                        }, bucket=self.instance))
+                    else:
+                        self.rows.append(Article(url=row.get('url'), authors={}, bucket=self.instance))
+                else:
+                    continue
+            
+            if len(self.rows) == 0:
+                raise ValidationError('This File doesn\'t have any new URL.')
         return file
     
     def save(self, commit=True):

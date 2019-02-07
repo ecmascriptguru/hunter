@@ -34,6 +34,29 @@ class Bucket(TimeStampedModel):
     @property
     def is_ready(self):
         return self.state == BUCKET_STATE.default and len(self.ready_articles) > 0
+    
+    @property
+    def complete_articles(self):
+        return self.articles.filter(state__in=[ARTICLE_STATE.found, ARTICLE_STATE.not_found, ARTICLE_STATE.need_confirm])
+    
+    @property
+    def found_articles(self):
+        return self.articles.filter(state__in=[ARTICLE_STATE.found, ARTICLE_STATE.need_confirm])
+
+    @property
+    def incorrect_urls(self):
+        return self.articles.filter(state=ARTICLE_STATE.page_not_found)
+    
+    @property
+    def odd_urls(self):
+        return self.articles.filter(state=ARTICLE_STATE.no_author)
+    
+    @property
+    def found_rate(self):
+        if len(self.complete_articles) > 0:
+            return "%.2f" % ((len(self.found_articles) / len(self.complete_articles)) * 100)
+        else:
+            return 0
 
 class ARTICLE_STATE:
     default = 'r'
@@ -44,6 +67,7 @@ class ARTICLE_STATE:
     need_confirm = 'c'
     page_not_found = 'p'
     has_error = 'e'
+    no_author = 'b'
 
 
 class Article(TimeStampedModel):
@@ -55,6 +79,7 @@ class Article(TimeStampedModel):
         (ARTICLE_STATE.in_progress, 'In Progress'),
         (ARTICLE_STATE.need_confirm, 'Need Confirm'),
         (ARTICLE_STATE.page_not_found, 'Page Not Found'),
+        (ARTICLE_STATE.no_author, 'No Author'),
         (ARTICLE_STATE.has_error, 'Error'),
     )
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE, related_name='articles')

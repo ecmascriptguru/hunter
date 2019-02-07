@@ -6,6 +6,7 @@ from .models import Article, Bucket
 
 class BucketTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
+    found_rate = tables.Column(empty_values=(), verbose_name='Found Rate', orderable=False)
     actions = tables.Column(empty_values=(), orderable=False)
     articles = tables.Column(empty_values=(), orderable=False)
 
@@ -20,6 +21,9 @@ class BucketTable(tables.Table):
     def __init__(self, *args, **kwargs):
         super(BucketTable, self).__init__(**kwargs)
         self.counter = itertools.count()
+    
+    def render_found_rate(self, record):
+        return "{}%".format(record.found_rate)
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)
