@@ -1,5 +1,5 @@
 from celery import shared_task
-from newspaper import Article as Hunter, ArticleException as HunterException
+from ...core import Article as Hunter, ArticleException as HunterException
 from .models import Article, ARTICLE_STATE, Bucket, BUCKET_STATE
 
 
@@ -7,6 +7,48 @@ DEFAULT_META = {
     'total': 0,
     'current': 0
 }
+
+HTTPS_PROTOCOL_PREFIX = 'https://'
+HTTP_PROTOCOL_PREFIX = 'http://'
+
+
+def try_with_http_protocol(article):
+    if not article.url.startswith(HTTPS_PROTOCOL_PREFIX):
+        return False
+
+    url = HTTP_PROTOCOL_PREFIX + article.url[len(HTTPS_PROTOCOL_PREFIX):]
+    hunter = Hunter(url)
+    hunter.download()
+
+    try:
+        hunter.parse()
+    except HunterException as e:
+        article.state = ARTICLE_STATE.page_not_found
+        return False
+    except Exception as e:
+        print(str(e))
+        article.state = ARTICLE_STATE.has_error
+        return False
+    else:
+        authors = hunter.authors
+        if len(authors) > 0:
+            article.authors['candidates'] = authors
+            if len(authors) > 1:
+                article.state = ARTICLE_STATE.need_confirm
+            else:
+                article.authors['found'] = authors[0]
+                article.state = ARTICLE_STATE.found
+            return True
+        else:
+            if article.bucket.is_test_data:
+                if article.authors.get('origin').lower() in hunter.text.lower() or\
+                        article.authors.get('origin').lower() in hunter.html.lower():
+                    article.state = ARTICLE_STATE.not_found
+                else:
+                    article.state = ARTICLE_STATE.no_author
+            else:
+                article.state = ARTICLE_STATE.not_found
+            return False
 
 
 @shared_task(bind=True)
@@ -33,10 +75,17 @@ def extract_authors(self, bucket_id, article_ids):
         try:
             hunter.parse()
         except HunterException as e:
-            article.state = ARTICLE_STATE.page_not_found
+            print(str(e))
+            if article.url.startswith(HTTPS_PROTOCOL_PREFIX):
+                try_with_http_protocol(article)
+            else:
+                article.state = ARTICLE_STATE.page_not_found
         except Exception as e:
             print(str(e))
-            article.state = ARTICLE_STATE.has_error
+            if article.url.startswith(HTTPS_PROTOCOL_PREFIX):
+                try_with_http_protocol(article)
+            else:
+                article.state = ARTICLE_STATE.has_error
         else:
             authors = hunter.authors
             if len(authors) > 0:
@@ -52,7 +101,7 @@ def extract_authors(self, bucket_id, article_ids):
                             article.authors.get('origin').lower() in hunter.html.lower():
                         article.state = ARTICLE_STATE.not_found
                     else:
-                        article.state = ARTICLE_STATE.page_not_found
+                        article.state = ARTICLE_STATE.no_author
                 else:
                     article.state = ARTICLE_STATE.not_found
         finally:

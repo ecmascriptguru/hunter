@@ -1,0 +1,1 @@
+from ..core.spiders.author_extractor import AuthorHunter as Article, ArticleException

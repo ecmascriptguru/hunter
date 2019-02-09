@@ -71,6 +71,9 @@ class ARTICLE_STATE:
 
 
 class Article(TimeStampedModel):
+    class Meta:
+        ordering = ('modified', )
+
     ARTICLE_STATE_OPTIONS = (
         (ARTICLE_STATE.default, 'Ready'),
         (ARTICLE_STATE.found, 'Found'),
@@ -86,3 +89,7 @@ class Article(TimeStampedModel):
     url = models.URLField(unique=True, verbose_name='Article URL')
     state = FSMField(default=ARTICLE_STATE.default, choices=ARTICLE_STATE_OPTIONS)
     authors = JSONField(default=None, blank=True)
+
+    @classmethod
+    def flops(cls):
+        return cls.objects.filter(state__in=[ARTICLE_STATE.page_not_found, ARTICLE_STATE.has_error])

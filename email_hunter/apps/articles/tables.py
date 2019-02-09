@@ -1,7 +1,7 @@
 import itertools
 import django_tables2 as tables
 from django.template.loader import render_to_string
-from .models import Article, Bucket
+from .models import Article, Bucket, BUCKET_STATE
 
 
 class BucketTable(tables.Table):
@@ -10,6 +10,7 @@ class BucketTable(tables.Table):
     actions = tables.Column(empty_values=(), orderable=False)
     articles = tables.Column(empty_values=(), orderable=False)
 
+    state_template = 'buckets/_bucket_table_state_column.html'
     actions_template = 'buckets/_bucket_table_actions_column.html'
 
     class Meta:
@@ -37,6 +38,7 @@ class BucketTable(tables.Table):
 
 class ArticleTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
+    given_author = tables.Column(empty_values=(), verbose_name='Given Author', orderable=False)
 
     class Meta:
         model = Article
@@ -47,6 +49,12 @@ class ArticleTable(tables.Table):
     def __init__(self, *args, **kwargs):
         super(ArticleTable, self).__init__(**kwargs)
         self.counter = itertools.count()
+
+    def render_given_author(self, record):
+        if record.bucket.is_test_data and record.authors.get('origin'):
+            return record.authors.get('origin')
+        else:
+            ''
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)
