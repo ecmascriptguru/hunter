@@ -27,7 +27,7 @@ flower==0.9.2
 idna==2.8
 jdcal==1.4
 jieba3k==0.35.1
-kombu==4.2.2
+kombu==4.2.2.post1
 lxml==4.3.0
 Markdown==3.0.1
 newspaper3k==0.2.8
