@@ -84,3 +84,6 @@ EMAIL_SUBJECT_PREFIX = '[HUNTER ADMIN]'
 BASE_URL = ENV_JSON.get('BASE_URL', None)
 if BASE_URL is None:
     raise ImportError("Missing BASE_URL! Please set this in settings file.")
+
+
+AUTHOR_EXTRACTION_BATCH_SIZE = ENV_JSON.get('AUTHOR_EXTRACTION_BATCH_SIZE', 300)

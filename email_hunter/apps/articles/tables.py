@@ -16,7 +16,7 @@ class BucketTable(tables.Table):
     class Meta:
         model = Bucket
         template_name = 'django_tables2/bootstrap.html'
-        exclude = ('id', 'modified', 'created', )
+        exclude = ('id', 'modified', 'created', 'jobs', )
         sequence = ['row_number', 'name', 'articles', 'state', 'user', ]
 
     def __init__(self, *args, **kwargs):

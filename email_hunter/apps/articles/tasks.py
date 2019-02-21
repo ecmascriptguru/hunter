@@ -123,8 +123,10 @@ def extract_authors(self, bucket_id, article_ids):
             self.update_state(state="PROGRESS", meta=DEFAULT_META)
     
     self.update_state(state="COMPLETE", meta=DEFAULT_META)
-    bucket.state = BUCKET_STATE.default
-    bucket.job_uuid = None
-    bucket.save()
+
+    if not bucket.articles.filter(state__in=[ARTICLE_STATE.in_progress, ARTICLE_STATE.pending]).exists():
+        bucket.state = BUCKET_STATE.default
+        bucket.save()
+
     browser.quit()
     return DEFAULT_META

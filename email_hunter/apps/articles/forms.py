@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django_fsm import FSMField
 from crispy_forms.layout import Layout, Div, Submit, ButtonHolder, Field
 from crispy_forms.helper import FormHelper
@@ -13,7 +14,7 @@ from .tasks import extract_authors
 class BucketForm(forms.ModelForm):
     class Meta:
         model = Bucket
-        exclude = ('user', 'state', 'is_test_data', 'job_uuid', )
+        exclude = ('user', 'state', 'is_test_data', 'jobs', )
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,9 +47,13 @@ class BucketForm(forms.ModelForm):
             ready_articles = self.instance.ready_articles
             ids = [a.id for a in ready_articles]
             ready_articles.update(state=ARTICLE_STATE.pending)
-            self.instance.state = BUCKET_STATE.in_progress
+            self.instance.state = BUCKET_STATE.pending
+            self.instance.jobs = []
             super().save(commit)
-            self.instance.job_uuid = extract_authors.delay(self.instance.pk, ids).id
+            for i in range(0, len(ids), settings.AUTHOR_EXTRACTION_BATCH_SIZE):
+                task = extract_authors.delay(self.instance.pk, ids[i:i + settings.AUTHOR_EXTRACTION_BATCH_SIZE])
+                self.instance.jobs.append(task.id)
+            # self.instance.job_uuid = extract_authors.delay(self.instance.pk, ids).id
         
         return super().save(commit)
 
@@ -56,7 +61,7 @@ class BucketForm(forms.ModelForm):
 class ArticleUploadForm(forms.ModelForm):
     class Meta:
         model = Bucket
-        exclude = ('name', 'user', 'state', 'job_uuid', )
+        exclude = ('name', 'user', 'state', 'jobs', )
 
     ENCODE_TYPE_CHOICES = (
         (ENCODE_TYPE.unicode, 'UTF-8'),

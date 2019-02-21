@@ -21,7 +21,7 @@ class Bucket(TimeStampedModel):
     state = FSMField(default=BUCKET_STATE.default, choices=BUCKET_STATE_OPTIONS)
     user = models.ForeignKey('users.User', on_delete=models.SET_DEFAULT, related_name='buckets',
                 default=None, null=True, blank=True)
-    job_uuid = models.UUIDField(default=None, null=True, blank=True)
+    jobs = JSONField(verbose_name='Jobs info', default=[])
     is_test_data = models.BooleanField(default=False)
 
     def __str__(self):
