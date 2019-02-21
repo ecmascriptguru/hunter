@@ -16,7 +16,44 @@ from ...apps.credentials.models import Credential, CREDENTIAL_STATE
 from ...apps.targets.models import TARGET_FILE_STATE
 
 
-class Browser(webdriver.Chrome):
+class Chrome(webdriver.Chrome):
+    """Main Browser to be used in author detection.
+    """
+    chromedriver_path = settings.CHROME_DRIVER_PATH
+
+    def __init__(self, *args, **kwargs):
+        super(Chrome, self).__init__(self.chromedriver_path, options=self.get_options(), **kwargs)
+    
+    def get_options(self):
+        if platform != 'win32' and not settings.DEBUG:
+            self.display = Display(visible=0, size=(1200, 900))
+            self.display.start()
+
+        if not os.path.exists(self.chromedriver_path):
+            raise ImproperlyConfigured('Chrome driver file doesn\' exist.')
+
+        options = webdriver.ChromeOptions()
+        options.add_argument("--window-size=1200,900")
+        options.add_argument('--dns-prefetch-disable')
+        options.add_argument('--js-flags="--max_old_space_size=4096"')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        prefs = {"profile.managed_default_content_settings.images":2}
+        options.add_experimental_option("prefs",prefs)
+
+        return options
+
+    def take_screenshot(self):
+        dir = path.join(settings.BASE_DIR, 'static/issues')
+        return self.save_screenshot(path.join(dir, str(datetime.datetime.now()) + '.png'))
+
+    def save_current_page(self):
+        dir = path.join(settings.BASE_DIR, 'static/issues')
+        temp = open(path.join(dir, 'index.html'), 'w')
+        temp.write(self.page_source)
+
+
+class Browser(Chrome):
     """Main Browser to be used in validation.
     -  credential: required in constructor
     """
@@ -54,6 +91,24 @@ class Browser(webdriver.Chrome):
         super(Browser, self).__init__(self.chromedriver_path, options=self.get_options(),
                 desired_capabilities=self.get_desired_capabilities(), **kwargs)
     
+    def get_desired_capabilities(self):
+        capabilities = dict(DesiredCapabilities.CHROME)
+        capabilities['proxy'] = {'proxyType': 'MANUAL',
+                                'httpProxy': self.proxy.get('address'),
+                                'ftpProxy': self.proxy.get('address'),
+                                'sslProxy': self.proxy.get('address'),
+                                'noProxy': '',
+                                'class': "org.openqa.selenium.Proxy",
+                                'autodetect': False}
+        return capabilities
+
+    def quit(self, *args, **kwargs):
+        if platform != 'win32' and not settings.DEBUG:
+            self.display.stop()
+
+        self.rollback_credential_state(**kwargs)
+        super(Browser, self).quit()
+
     def get_options(self):
         if platform != 'win32' and not settings.DEBUG:
             self.display = Display(visible=0, size=(1200, 900))

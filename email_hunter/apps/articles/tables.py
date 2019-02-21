@@ -39,6 +39,7 @@ class BucketTable(tables.Table):
 class ArticleTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
     given_author = tables.Column(empty_values=(), verbose_name='Given Author', orderable=False)
+    found_authors = tables.Column(empty_values=(), verbose_name='Found Authors', orderable=False)
 
     class Meta:
         model = Article
@@ -55,6 +56,12 @@ class ArticleTable(tables.Table):
             return record.authors.get('origin')
         else:
             ''
+    
+    def render_found_authors(self, record):
+        if record.authors.get('found'):
+            return record.authors.get('found')
+        else:
+            return ','.join(record.authors.get('candidates', []))
 
     def render_row_number(self):
         return '%d' % (next(self.counter) + 1)

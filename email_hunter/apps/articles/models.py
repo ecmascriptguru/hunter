@@ -93,3 +93,7 @@ class Article(TimeStampedModel):
     @classmethod
     def flops(cls):
         return cls.objects.filter(state__in=[ARTICLE_STATE.page_not_found, ARTICLE_STATE.has_error])
+    
+    @classmethod
+    def not_founds(cls):
+        return cls.objects.filter(state__in=[ARTICLE_STATE.not_found, ARTICLE_STATE.no_author])

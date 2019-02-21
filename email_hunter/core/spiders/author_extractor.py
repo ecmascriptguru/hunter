@@ -1,3 +1,4 @@
+import re
 from newspaper import Article, ArticleException
 from newspaper.extractors import ContentExtractor
 from newspaper.configuration import Configuration
@@ -113,7 +114,7 @@ class CustomContextExtractor(ContentExtractor):
         # except:
         #    return [] # Failed to find anything
         # return authors
-
+from selenium.webdriver import Chrome
 class AuthorHunter(Article):
     def __init__(self, *args, **kwargs):
         super(AuthorHunter, self).__init__(*args, **kwargs)
