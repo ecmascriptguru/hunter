@@ -73,7 +73,12 @@ def parse_urls(file, encoding='utf-8', is_test_data=False, has_header=False):
                 content.rename(columns={content.columns[columns[col]]: col}, inplace=True)
             
             content = content[list(columns)]
-            rows = [dict(row._asdict()) for row in content.itertuples()]
+            buffer = dict()
+            rows = list()
+            for row in content.itertuples():
+                if buffer.get(row._asdict()['url']) is None:
+                    rows.append(row._asdict())
+                    buffer[row._asdict()['url']] = True
             return True, "Successfully parsed the file.", rows
         except Exception as e:
             return False, str(e), []

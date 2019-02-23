@@ -120,6 +120,9 @@ class ArticleUploadForm(forms.ModelForm):
         if len(self.rows) > 0:
             for article in self.rows:
                 article.bucket = self.instance
-            self.instance.articles.bulk_create(self.rows)
+            
+            for i in range(0, len(self.rows), 500):
+                self.instance.articles.bulk_create(self.rows[i: i + 500])
+            # self.instance.articles.bulk_create(self.rows)
         
         return self.instance

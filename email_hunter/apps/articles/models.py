@@ -86,7 +86,7 @@ class Article(TimeStampedModel):
         (ARTICLE_STATE.has_error, 'Error'),
     )
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE, related_name='articles')
-    url = models.URLField(unique=True, verbose_name='Article URL')
+    url = models.URLField(unique=True, verbose_name='Article URL', max_length=500)
     state = FSMField(default=ARTICLE_STATE.default, choices=ARTICLE_STATE_OPTIONS)
     authors = JSONField(default=None, blank=True)
 
