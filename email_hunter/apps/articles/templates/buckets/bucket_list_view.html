@@ -1,7 +1,6 @@
 {% extends "layouts/admin_lte_base.html" %}
 {% load static %}
 {% load render_table from django_tables2 %}
-{% load django_tables2 %}
 {% load bootstrap4 %}
 
 {% block body %}
@@ -28,10 +27,19 @@
                 </form>
                 {% endif %}
             </div>
-            <div class="col-sm-12">
-                {% render_table table %}
+            <div class="col-sm-12" id="live-view-container">
+                {% include 'buckets/_bucket_list_table.html' %}
             </div>
         </div>
     </section>
     
 {% endblock body %}
+
+{% block custom_js %}
+{% csrf_token %}
+<script type="text/javascript">
+$(document).ready(() => {
+    window.EmailHunter.tools.enableLiveView()
+})
+</script>
+{% endblock custom_js %}

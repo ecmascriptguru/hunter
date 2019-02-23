@@ -37,7 +37,7 @@ class BucketForm(forms.ModelForm):
             )
     
     def clean(self, *args, **kwargs):
-        if not self.instance.is_ready:
+        if self.data['submit'] == 'Start Extraction' and not self.instance.is_ready:
             raise ValidationError('This bucket is not ready to get started.\n Please try again later.')
         
         return super().clean(*args, **kwargs)

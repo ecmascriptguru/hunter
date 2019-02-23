@@ -2,22 +2,24 @@ import itertools
 import django_tables2 as tables
 from django.template.loader import render_to_string
 from .models import Article, Bucket, BUCKET_STATE
+from .tasks import extract_authors
 
 
 class BucketTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
     found_rate = tables.Column(empty_values=(), verbose_name='Found Rate', orderable=False)
     actions = tables.Column(empty_values=(), orderable=False)
-    articles = tables.Column(empty_values=(), orderable=False)
+    progress = tables.Column(empty_values=(), orderable=False, verbose_name='Progress')
 
     state_template = 'buckets/_bucket_table_state_column.html'
     actions_template = 'buckets/_bucket_table_actions_column.html'
+    progress_template = 'buckets/_bucket_table_progress_column.html'
 
     class Meta:
         model = Bucket
         template_name = 'django_tables2/bootstrap.html'
         exclude = ('id', 'modified', 'created', 'jobs', )
-        sequence = ['row_number', 'name', 'articles', 'state', 'user', ]
+        sequence = ['row_number', 'name', 'state', 'found_rate', 'progress', 'user', ]
 
     def __init__(self, *args, **kwargs):
         super(BucketTable, self).__init__(**kwargs)
@@ -31,6 +33,26 @@ class BucketTable(tables.Table):
     
     def render_articles(self, record):
         return len(record.ready_articles)
+    
+    def render_progress(self, record):
+        processed = 0
+        total = 0
+        for job in record.jobs:
+            task = extract_authors.AsyncResult(job)
+            result = task.info
+            if result is None:
+                continue
+
+            if result.get('total', 0) > 0 and result.get('current'):
+
+                total += int(result.get('total', 0))
+                processed += int(result.get('current', 0))
+        
+        percent = 0
+        if total > 0:
+            percent = "%.2f" % (processed / total)
+            print(percent)
+        return render_to_string(self.progress_template, context={'percent': percent})
 
     def render_actions(self, record):
         return render_to_string(self.actions_template, context={'record': record})

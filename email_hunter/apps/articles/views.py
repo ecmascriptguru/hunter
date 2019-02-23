@@ -15,6 +15,12 @@ class BucketListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     table_class = BucketTable
     filterset_class = BucketFilter
     template_name = 'buckets/bucket_list_view.html'
+    ajax_template_name = 'buckets/_bucket_list_table.html'
+
+    def get_queryset(self, *args, **kwargs):
+        if self.request.is_ajax():
+            self.template_name = self.ajax_template_name
+        return super().get_queryset(*args, **kwargs)
 
 
 class BucketUpdateView(LoginRequiredMixin, generic.UpdateView):
