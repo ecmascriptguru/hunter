@@ -1,6 +1,7 @@
 import time
 from celery import shared_task
 from celery.exceptions import TimeLimitExceeded, TimeoutError
+from selenium.common.exceptions import TimeoutException
 from ...core import Article as Hunter, ArticleException as HunterException
 from ...core.spiders.browser import Chrome
 from .models import Article, ARTICLE_STATE, Bucket, BUCKET_STATE
@@ -81,13 +82,12 @@ def extract_authors(self, bucket_id, article_ids):
 
             # TODO: Should extract author
             hunter = Hunter(article.url)
-            browser.get(article.url)
-            time.sleep(1)
-            
-            # hunter.download()
-            hunter.download(input_html=browser.page_source)
 
             try:
+                browser.get(article.url)
+                time.sleep(1)
+                # hunter.download()
+                hunter.download(input_html=browser.page_source)
                 hunter.parse()
             except HunterException as e:
                 print(str(e))
@@ -95,6 +95,9 @@ def extract_authors(self, bucket_id, article_ids):
                     try_with_http_protocol(article, browser)
                 else:
                     article.state = ARTICLE_STATE.page_not_found
+            except TimeoutException as e:
+                print(str(e))
+                article.state = ARTICLE_STATE.has_error
             except Exception as e:
                 print(str(e))
                 if article.url.startswith(HTTPS_PROTOCOL_PREFIX):
