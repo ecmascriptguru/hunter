@@ -43,15 +43,16 @@ class BucketTable(tables.Table):
             if result is None:
                 continue
 
+            print(result)
             if result.get('total', 0) > 0 and result.get('current'):
-
                 total += int(result.get('total', 0))
                 processed += int(result.get('current', 0))
         
         percent = 0
         if total > 0:
-            percent = "%.2f" % (processed / total)
-            print(percent)
+            percent = processed / total * 100
+            percent = "%.2f" % percent
+        
         return render_to_string(self.progress_template, context={'percent': percent})
 
     def render_actions(self, record):
