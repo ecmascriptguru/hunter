@@ -26,7 +26,7 @@ class Chrome(webdriver.Chrome):
     
     def get_options(self):
         if platform != 'win32' and not settings.DEBUG:
-            self.display = Display(visible=0, size=(1200, 900))
+            self.display = Display(visible=1, size=(1200, 900))
             self.display.start()
 
         if not os.path.exists(self.chromedriver_path):
@@ -75,31 +75,32 @@ class Browser(Chrome):
     recovery_email_error_text = 'The email you entered is incorrect. Try again.'
 
     _google_login_check_count = 0
+    credential_class = Credential
 
     _element_find_timer = 0
 
     def __init__(self, *args, **kwargs):
         if not kwargs.get('pk', None):
-            credential = Credential.get_hold()
+            credential = self.credential_class.get_hold()
         else:
-            credential = Credential.objects.get(pk=kwargs.pop('pk'))
+            credential = self.credential_class.objects.get(pk=kwargs.pop('pk'))
 
         if credential is None:
             raise ImproperlyConfigured('credential is required.')
 
         self.set_credential(credential)
-        super(Browser, self).__init__(self.chromedriver_path, options=self.get_options(),
+        super(Browser, self).__init__(self.chromedriver_path,# options=self.get_options(),
                 desired_capabilities=self.get_desired_capabilities(), **kwargs)
     
     def get_desired_capabilities(self):
         capabilities = dict(DesiredCapabilities.CHROME)
-        capabilities['proxy'] = {'proxyType': 'MANUAL',
-                                'httpProxy': self.proxy.get('address'),
-                                'ftpProxy': self.proxy.get('address'),
-                                'sslProxy': self.proxy.get('address'),
-                                'noProxy': '',
-                                'class': "org.openqa.selenium.Proxy",
-                                'autodetect': False}
+        # capabilities['proxy'] = {'proxyType': 'MANUAL',
+        #                         'httpProxy': self.proxy.get('address'),
+        #                         'ftpProxy': self.proxy.get('address'),
+        #                         'sslProxy': self.proxy.get('address'),
+        #                         'noProxy': '',
+        #                         'class': "org.openqa.selenium.Proxy",
+        #                         'autodetect': False}
         return capabilities
 
     def quit(self, *args, **kwargs):
@@ -134,13 +135,13 @@ class Browser(Chrome):
     
     def get_desired_capabilities(self):
         capabilities = dict(DesiredCapabilities.CHROME)
-        capabilities['proxy'] = {'proxyType': 'MANUAL',
-                                'httpProxy': self.proxy.get('address'),
-                                'ftpProxy': self.proxy.get('address'),
-                                'sslProxy': self.proxy.get('address'),
-                                'noProxy': '',
-                                'class': "org.openqa.selenium.Proxy",
-                                'autodetect': False}
+        # capabilities['proxy'] = {'proxyType': 'MANUAL',
+        #                         'httpProxy': self.proxy.get('address'),
+        #                         'ftpProxy': self.proxy.get('address'),
+        #                         'sslProxy': self.proxy.get('address'),
+        #                         'noProxy': '',
+        #                         'class': "org.openqa.selenium.Proxy",
+        #                         'autodetect': False}
         return capabilities
 
     def set_credential(self, credential):
